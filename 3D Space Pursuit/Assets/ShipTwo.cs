@@ -30,7 +30,7 @@ public class ShipTwo : MonoBehaviour
     {
         Vector3 targetDir = otherShip.position - transform.position;
         float angle = Vector3.Angle(targetDir, transform.forward);
-        Debug.Log("Angle == " + angle);
+        //Debug.Log("Angle == " + angle);
         //if (angle < 5.0f)
         //    print("close");
     }

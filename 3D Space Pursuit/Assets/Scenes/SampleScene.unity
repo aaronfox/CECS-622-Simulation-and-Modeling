@@ -765,9 +765,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1e08672bdbbf59449985bcb532fd86da, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  otherShip: {fileID: 2038290380}
+  otherShipRB: {fileID: 475214604}
   rb: {fileID: 1019478905}
-  speed: 60
+  speed: 40
   alphaAngle: 30
   betaDistance: 10
 --- !u!4 &1019478904 stripped
@@ -1012,9 +1012,3 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1971694567}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
---- !u!4 &2038290380 stripped
-Transform:
-  m_CorrespondingSourceObject: {fileID: 4185073248538102, guid: 7049a336c6ee74a32984d27e6d9faeca,
-    type: 3}
-  m_PrefabInstance: {fileID: 985797874}
-  m_PrefabAsset: {fileID: 0}
