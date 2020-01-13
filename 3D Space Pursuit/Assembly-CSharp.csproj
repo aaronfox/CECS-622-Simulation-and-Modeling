@@ -62,8 +62,8 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Assets\Chaser.cs" />
-    <Compile Include="Assets\Escaper.cs" />
+    <Compile Include="Assets\ShipOne.cs" />
+    <Compile Include="Assets\ShipTwo.cs" />
     <Reference Include="Unity.Timeline.Editor">
       <HintPath>C:/Users/aaron/Classes_11th_Semester/CECS 622/CECS-622-Simulation-and-Modeling/3D Space Pursuit/Library/ScriptAssemblies/Unity.Timeline.Editor.dll</HintPath>
     </Reference>
