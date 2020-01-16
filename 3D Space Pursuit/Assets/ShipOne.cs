@@ -80,7 +80,7 @@ public class ShipOne : MonoBehaviour
         // The step size is equal to speed times frame time.
         float singleStep = speed * Time.deltaTime;
 
-        // Rotate the forward vector towards the target direction by one step
+        // Rotate the forward vector away from the target direction by one step
         Vector3 newDirection = Vector3.RotateTowards(transform.forward, targetDirection, singleStep, 0.0f);
 
         // Draw a ray pointing at our target in
@@ -107,7 +107,7 @@ public class ShipOne : MonoBehaviour
         float singleStep = speed * Time.deltaTime;
 
         // Rotate the forward vector towards the target direction by one step
-        Vector3 newDirection = Vector3.RotateTowards(transform.forward, targetDirection, singleStep, 0.0f);
+        Vector3 newDirection = Vector3.RotateTowards(transform.forward, targetDirection, singleStep + alphaAngle, 0.0f);
 
         // Draw a ray pointing at our target in
         Debug.DrawRay(transform.position, expectedOtherShipPosition - transform.position, Color.red);//, 1.0f);

@@ -6,12 +6,14 @@ public class ShipTwo : MonoBehaviour
 {
     public Transform otherShip; // The other ship's position, angle, and speed
     public Rigidbody rb;
+    [Range(1.0f, 100.0f)]
     public float speed = 50.0f;
     public float alphaAngle = 30.0f;
     public float betaDistance = 10.0f;
     public Rigidbody otherShipRB;
     [Range(0.0f, 10.0f)]
     public float aggressionLevel = 7.0f;
+    public GameObject otherShipGameObject;
 
     // Start is called before the first frame update
     void Start()
@@ -34,19 +36,21 @@ public class ShipTwo : MonoBehaviour
     private void FixedUpdate()
     {
         Vector3 targetDir = otherShip.position - transform.position;
+
         float angle = Vector3.Angle(targetDir, transform.forward);
 
         float distance = Mathf.Abs(Vector3.Distance(otherShip.position, transform.position));
 
         float errorTolerance = 5.0f;
 
-
+        Debug.Log("Ship Two Angle: " + angle + "\nShip Two Distance: " + distance);
 
         if (angle < alphaAngle + errorTolerance && angle > alphaAngle - errorTolerance)
         {
             if (distance < betaDistance + errorTolerance && distance > betaDistance - errorTolerance)
             {
                 Debug.Log("Destroyed Ship One!");
+                Destroy(otherShipGameObject);
             }
         }
         //Debug.Log("Angle == " + angle);
@@ -120,14 +124,16 @@ public class ShipTwo : MonoBehaviour
         float singleStep = speed * Time.deltaTime;
 
         // Rotate the forward vector towards the target direction by one step
-        Vector3 newDirection = Vector3.RotateTowards(transform.forward, targetDirection, singleStep, 0.0f);
+        Vector3 newDirection = Vector3.RotateTowards(transform.forward, targetDirection, singleStep + alphaAngle, 0.0f);
 
-        // Draw a ray pointing at our target in
+        // Draw a ray pointing at our target's expected future direction
         Debug.DrawRay(transform.position, expectedOtherShipPosition - transform.position, Color.red);//, 1.0f);
 
         // Calculate a rotation a step closer to the target and applies rotation to this object
         transform.rotation = Quaternion.LookRotation(newDirection);
 
+        // Attempt to rotate to alpha angle specified to destroy ship
+        transform.Rotate(90.0f, 0.0f, 0.0f, Space.Self);
 
         // END ROTATE TOWARD CODE
     }
