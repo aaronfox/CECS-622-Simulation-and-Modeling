@@ -232,9 +232,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   otherShip: {fileID: 1019478904}
   rb: {fileID: 475214604}
-  speed: 50
+  speed: 30
   alphaAngle: 30
   betaDistance: 10
+  otherShipRB: {fileID: 1019478905}
+  aggressionLevel: 10
 --- !u!54 &475214604
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -251,6 +253,12 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 0
   m_CollisionDetection: 0
+--- !u!4 &475214605 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 4185073248538102, guid: 7049a336c6ee74a32984d27e6d9faeca,
+    type: 3}
+  m_PrefabInstance: {fileID: 985797874}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &482661168
 GameObject:
   m_ObjectHideFlags: 0
@@ -691,15 +699,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4974307145611770, guid: c7bd5c71ab13c41359305dc1af814468, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 0
+      value: 74
       objectReference: {fileID: 0}
     - target: {fileID: 4974307145611770, guid: c7bd5c71ab13c41359305dc1af814468, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 5
+      value: -27
       objectReference: {fileID: 0}
     - target: {fileID: 4974307145611770, guid: c7bd5c71ab13c41359305dc1af814468, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 12
+      value: -23
       objectReference: {fileID: 0}
     - target: {fileID: 4974307145611770, guid: c7bd5c71ab13c41359305dc1af814468, type: 3}
       propertyPath: m_LocalRotation.x
@@ -707,7 +715,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4974307145611770, guid: c7bd5c71ab13c41359305dc1af814468, type: 3}
       propertyPath: m_LocalRotation.y
-      value: 0
+      value: 0.22018673
       objectReference: {fileID: 0}
     - target: {fileID: 4974307145611770, guid: c7bd5c71ab13c41359305dc1af814468, type: 3}
       propertyPath: m_LocalRotation.z
@@ -715,7 +723,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4974307145611770, guid: c7bd5c71ab13c41359305dc1af814468, type: 3}
       propertyPath: m_LocalRotation.w
-      value: 1
+      value: 0.9754578
       objectReference: {fileID: 0}
     - target: {fileID: 4974307145611770, guid: c7bd5c71ab13c41359305dc1af814468, type: 3}
       propertyPath: m_RootOrder
@@ -727,7 +735,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4974307145611770, guid: c7bd5c71ab13c41359305dc1af814468, type: 3}
       propertyPath: m_LocalEulerAnglesHint.y
-      value: 0
+      value: 25.44
       objectReference: {fileID: 0}
     - target: {fileID: 4974307145611770, guid: c7bd5c71ab13c41359305dc1af814468, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
@@ -765,11 +773,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1e08672bdbbf59449985bcb532fd86da, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  otherShipRB: {fileID: 475214604}
+  otherShip: {fileID: 475214605}
   rb: {fileID: 1019478905}
-  speed: 40
+  speed: 20
   alphaAngle: 30
   betaDistance: 10
+  otherShipRB: {fileID: 475214604}
+  aggressionLevel: 10
 --- !u!4 &1019478904 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 4974307145611770, guid: c7bd5c71ab13c41359305dc1af814468,
