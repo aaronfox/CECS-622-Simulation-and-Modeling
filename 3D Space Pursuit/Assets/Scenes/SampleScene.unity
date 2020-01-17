@@ -232,11 +232,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   otherShip: {fileID: 1019478904}
   rb: {fileID: 475214604}
-  speed: 15
-  alphaAngle: 5
+  speed: 70
+  alphaAngle: 30
   betaDistance: 100
   otherShipRB: {fileID: 1019478905}
-  aggressionLevel: 5.36
+  aggressionLevel: 6.16
   otherShipGameObject: {fileID: 1019478902}
 --- !u!54 &475214604
 Rigidbody:
@@ -776,11 +776,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   otherShip: {fileID: 475214605}
   rb: {fileID: 1019478905}
-  speed: 10
+  speed: 60
   alphaAngle: 30
   betaDistance: 100
   otherShipRB: {fileID: 475214604}
-  aggressionLevel: 5.3
+  aggressionLevel: 6.37
+  otherShipGameObject: {fileID: 475214602}
 --- !u!4 &1019478904 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 4974307145611770, guid: c7bd5c71ab13c41359305dc1af814468,

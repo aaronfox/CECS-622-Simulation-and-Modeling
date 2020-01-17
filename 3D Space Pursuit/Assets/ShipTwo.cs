@@ -45,12 +45,27 @@ public class ShipTwo : MonoBehaviour
 
         Debug.Log("Ship Two Angle: " + angle + "\nShip Two Distance: " + distance);
 
+        //float testingErrorTolerance = 10.0f;
+        //if (angle < alphaAngle + testingErrorTolerance && angle > alphaAngle - testingErrorTolerance)
+        //{
+        //    Debug.Log("Ship Two: Within Angle distance of " + testingErrorTolerance+ "!");
+        //    if (distance < betaDistance + testingErrorTolerance && distance > betaDistance - testingErrorTolerance)
+        //    {
+        //        Debug.Log("Ship Two: Within distance distance of " + testingErrorTolerance + "!");
+
+
+        //        //Destroy(otherShipGameObject);
+        //    }
+        //}
         if (angle < alphaAngle + errorTolerance && angle > alphaAngle - errorTolerance)
         {
             if (distance < betaDistance + errorTolerance && distance > betaDistance - errorTolerance)
             {
                 Debug.Log("Destroyed Ship One!");
                 Destroy(otherShipGameObject);
+                // Disable script at this point. The simulation is finished
+                this.enabled = false;
+                //otherShipGameObject.GetComponent <"ShipOne">().enabled = false;
             }
         }
         //Debug.Log("Angle == " + angle);
@@ -72,13 +87,14 @@ public class ShipTwo : MonoBehaviour
             yield return new WaitForSeconds(Random.Range(1, 3));
             if (Random.Range(0, 10) > aggressionLevel)
             {
-                //Debug.Log("Ship Two: Escaping away from");
-                EscapeAwayFrom(0.0f);
+
+                    //Debug.Log("Ship Two: Escaping away from");
+                    EscapeAwayFrom(0.0f);
             }
             else
             {
-                //Debug.Log("Ship Two: Going toward");
-                GoToward(0.0f);
+                    //Debug.Log("Ship Two: Going toward");
+                    GoToward(0.0f);
             }
         }
         
@@ -101,7 +117,7 @@ public class ShipTwo : MonoBehaviour
         Vector3 newDirection = Vector3.RotateTowards(transform.forward, targetDirection, singleStep, 0.0f);
 
         // Draw a ray pointing at our target in
-        Debug.DrawRay(transform.position, expectedOtherShipPosition - transform.position, Color.red);//, 1.0f);
+        Debug.DrawRay(transform.position, expectedOtherShipPosition - transform.position, Color.blue);//, 1.0f);
 
         // Calculate a rotation a step closer to the target and applies rotation to this object
         transform.rotation = Quaternion.LookRotation(newDirection);
@@ -111,10 +127,17 @@ public class ShipTwo : MonoBehaviour
 
     public void GoToward(float timeToWait)
     {
-        float timeForPredictedPath = 50.0f;
 
-        // Get predicted path of other ship 5 seconds from now
+        // Use timeForPredictedPath to allow ship to take the allotted required time to get within
+        // a beta distance of the other ship
+        // NOTE: otherShipRB.velocity.magnitude is the magnitude of the speed of the other ship
+        // Time needed is distance over time or m / m / s = s
+        float timeForPredictedPath = betaDistance / otherShipRB.velocity.magnitude * 60;
+        Debug.Log("timeForPredictedPath == " + timeForPredictedPath);
+
+        // Get predicted path of other ship timeForPredictedPath seconds from now
         Vector3 expectedOtherShipPosition = otherShipRB.position + otherShipRB.velocity * timeForPredictedPath * Time.deltaTime;
+        //Vector3 expectedOtherShipPosition = new Vector3(otherShipRB.position.x + otherShipRB.velocity.magnitude * timeForPredictedPath * Time.deltaTime, otherShipRB.position.y + otherShipRB.velocity.magnitude * timeForPredictedPath * Time.deltaTime, otherShipRB.position.z + otherShipRB.velocity.magnitude * timeForPredictedPath * Time.deltaTime);// + /*otherShipRB.velocity* */ + timeForPredictedPath * Time.deltaTime;
 
         // ROTATE TOWARD CODE
         // Determine which direction to rotate towards
@@ -124,61 +147,17 @@ public class ShipTwo : MonoBehaviour
         float singleStep = speed * Time.deltaTime;
 
         // Rotate the forward vector towards the target direction by one step
-        Vector3 newDirection = Vector3.RotateTowards(transform.forward, targetDirection, singleStep + alphaAngle, 0.0f);
+        Vector3 newDirection = Vector3.RotateTowards(transform.forward, targetDirection, singleStep, 0.0f); // TODO: see if alphaAngle should go here or not
 
         // Draw a ray pointing at our target's expected future direction
-        Debug.DrawRay(transform.position, expectedOtherShipPosition - transform.position, Color.red);//, 1.0f);
+        Debug.DrawRay(transform.position, expectedOtherShipPosition - transform.position, Color.blue, 10.0f);
 
         // Calculate a rotation a step closer to the target and applies rotation to this object
         transform.rotation = Quaternion.LookRotation(newDirection);
 
         // Attempt to rotate to alpha angle specified to destroy ship
-        transform.Rotate(90.0f, 0.0f, 0.0f, Space.Self);
+        //transform.Rotate(90.0f, 0.0f, 0.0f, Space.Self);
 
         // END ROTATE TOWARD CODE
     }
 }
-
-
-//using System.Collections;
-//using System.Collections.Generic;
-//using UnityEngine;
-
-//public class Escaper : MonoBehaviour
-//{
-//    // Get position of chaser to escape from
-//    public Transform otherShip;
-//    public Rigidbody rb;
-//    public float speed = 50.0f;
-//    // Start is called before the first frame update
-//    void Start()
-//    {
-//        rb = GetComponent<Rigidbody>();
-
-//        // Maintain constant velocity in forward direction
-//        rb.velocity = new Vector3(0, 0, speed);
-//    }
-
-//    // Update is called once per frame
-//    void Update()
-//    {
-
-//    }
-
-//    private void FixedUpdate()
-//    {
-//        // Go at 90 angle away from chaser
-//        //transform.Translate()
-
-//        // Get chaser's angle
-//        Vector3 chaserAngles = otherShip.rotation.eulerAngles;
-//        Debug.Log("ChaserAngle = " + chaserAngles.ToString());
-//        Debug.Log("Escaper Angle = " + transform.eulerAngles.ToString());
-
-//        // Change Escaper's angle to be opposite of Chaser's angle
-//        //float x = transform.rotation.eulerAngles.y;
-//        transform.eulerAngles = new Vector3(chaserAngles.x + 180, chaserAngles.y + 180, transform.eulerAngles.z + 180);
-
-//        //transform.Rotate()
-//    }
-//}
