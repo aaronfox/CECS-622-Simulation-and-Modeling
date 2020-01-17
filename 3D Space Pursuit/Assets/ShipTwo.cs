@@ -65,7 +65,8 @@ public class ShipTwo : MonoBehaviour
                 Destroy(otherShipGameObject);
                 // Disable script at this point. The simulation is finished
                 this.enabled = false;
-                //otherShipGameObject.GetComponent <"ShipOne">().enabled = false;
+                // Disable other script as well to prevent errors
+                otherShipGameObject.GetComponent<ShipOne>().enabled = false;
             }
         }
         //Debug.Log("Angle == " + angle);
