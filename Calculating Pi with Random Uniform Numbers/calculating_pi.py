@@ -1,15 +1,19 @@
 import sys
 from PyQt5.QtWidgets import QDialog, QApplication, QPushButton, QVBoxLayout, QLineEdit, QLabel, QHBoxLayout
+from PyQt5.QtCore import Qt # To enable maximizing of the GUI
 
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.backends.backend_qt5agg import NavigationToolbar2QT as NavigationToolbar
 import matplotlib.pyplot as plt
+import matplotlib.patches as patches # For bounding square
 
 import random
 
 class Window(QDialog):
     def __init__(self, parent=None):
         super(Window, self).__init__(parent)
+        # Allow for easy maximizing of the GUI
+        self.setWindowFlag(Qt.WindowMaximizeButtonHint, True)
 
         # Figure instance for plotting
         self.figure = plt.figure()
@@ -51,23 +55,48 @@ class Window(QDialog):
 
     def generate(self):
         ''' plot some random stuff '''
-        # random data
-        data = [random.random() for i in range(10)]
+        # # random data
+        # data = [random.random() for i in range(10)]
 
         # instead of ax.hold(False)
         self.figure.clear()
 
         # create an axis
         ax = self.figure.add_subplot(111)
+        plt.gca().set_aspect('equal', adjustable='box')
 
         # discards the old graph
         # ax.hold(False) # deprecated, see above
 
-        # plot data
-        ax.plot(data, '*-')
+        # # plot data
+        # ax.plot(data, '*-')
+        # Create a Rectangle patch
+        circle = patches.Circle(xy=(.5,.5),radius=.5,linewidth=1,edgecolor='r',facecolor='none')
 
-        # refresh canvas
-        self.canvas.draw()
+        # Add the patch to the Axes
+        ax.add_patch(circle)
+
+        # Get input N (amount of numbers to generate) from input
+        if self.random_number_input.text().isnumeric():
+            N = int(self.random_number_input.text())
+
+            print("N == " + str(N))
+            # Generate N random numbers
+            uniform_numbers = self.generate_uniform_numbers(N)
+            print("uniform_numbers == " + str(uniform_numbers))
+            # refresh canvas
+            self.canvas.draw()
+        else:
+            print("Input does not contain a valid number")
+
+        
+
+    def generate_uniform_numbers(self, N):
+        uniform_numbers = []
+        for i in range(0, N):
+            uniform_numbers.append([random.uniform(0, 1), random.uniform(0, 1)])
+        return uniform_numbers
+
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
