@@ -17,8 +17,6 @@ import random  # For its random.uniform function
 import math  # For using square root to find distance points are from circle center
 
 # All of the gui is based out of this Window class using Python PyQt5 GUI framework
-
-
 class Window(QDialog):
     def __init__(self, parent=None):
         super(Window, self).__init__(parent)
@@ -35,16 +33,37 @@ class Window(QDialog):
         # Adds toolbar to top of GUI for saving pictures, zooming in graph, etc.
         self.toolbar = NavigationToolbar(self.canvas, self)
 
-        # Add input box for user to request N uniform numbers
-        self.random_number_input = QLineEdit()
-        self.random_number_input_label = QLabel()
-        self.random_number_input_label.setText(
-            "Enter Value for Q1: ")
+        # Add input boxes for user to input values
+        # Q1 and Q2 represent initial inventory quantities
+        self.Q1 = QLineEdit()
+        self.Q1.setText("1000")
+        self.Q1_label = QLabel()
+        self.Q1_label.setText("Enter value for Q1: ")
+
+        # Q2 Input and Label
+        self.Q2 = QLineEdit()
+        self.Q2.setText("1000")
+        self.Q2_label = QLabel()
+        self.Q2_label.setText("Q2: ")
+
+        # P1 and P2 are the amounts being deducted from Q1 and Q2 respectively
+        # every 1 to 4 days. NOTE: P1 << Q1 and P2 << Q2
+        # P1 Input and Label
+        self.P1 = QLineEdit()
+        self.P1.setText("15")
+        self.P1_label = QLabel()
+        self.P1_label.setText("P1: ")
+
+        # P2 Input and Label
+        self.P2 = QLineEdit()
+        self.P2.setText("10")
+        self.P2_label = QLabel()
+        self.P2_label.setText("P2: ")
 
         # Button connected to generation of points on figure to visually
         # display the uniform random distribution of points inside/outside the circle
-        self.button = QPushButton('Generate')
-        self.button.clicked.connect(self.generate)
+        self.button = QPushButton('Run Simulation')
+        self.button.clicked.connect(self.run_simulation)
 
         # set the layout (vertical)
         layout = QVBoxLayout()
@@ -58,8 +77,14 @@ class Window(QDialog):
 
         # Number of N numbers to generate input
         horizontal_layout = QHBoxLayout()
-        horizontal_layout.addWidget(self.random_number_input_label)
-        horizontal_layout.addWidget(self.random_number_input)
+        horizontal_layout.addWidget(self.Q1_label)
+        horizontal_layout.addWidget(self.Q1)
+        horizontal_layout.addWidget(self.Q2_label)
+        horizontal_layout.addWidget(self.Q2)
+        horizontal_layout.addWidget(self.P1_label)
+        horizontal_layout.addWidget(self.P1)
+        horizontal_layout.addWidget(self.P2_label)
+        horizontal_layout.addWidget(self.P2)
         layout.addLayout(horizontal_layout)
 
         # Add Generate button to layout
@@ -68,8 +93,13 @@ class Window(QDialog):
         self.setLayout(layout)
 
         # Keep track of values of Q1 and Q2 inventories here
-        self.q1_inventory = 1000
-        self.q2_inventory = 1000
+        self.Q1_inventory = int(self.Q1.text())
+        self.Q2_inventory = int(self.Q2.text())
+        self.P1_request = int(self.P1.text())
+        self.P2_request = int(self.P2.text())
+
+        # Current day of simulation
+        self.current_day = 0
 
         # Create initial empty plot for aesthetic purposes
         self.initial_plot()
@@ -84,8 +114,8 @@ class Window(QDialog):
 
         labels = ['Q1', 'Q2']
         label_locs = [1, 2]
-        width = 0.35
-        ax.bar(label_locs, [self.q1_inventory, self.q2_inventory], width, label='Q1')
+        width = .40
+        ax.bar(label_locs, [self.Q1_inventory, self.Q2_inventory], width, label='Q1')
 
         # Set Graph labels, title, x-axis
         ax.set_ylabel('Inventory Available')
@@ -96,68 +126,43 @@ class Window(QDialog):
         # refresh canvas
         self.canvas.draw()
 
-    # Generates and displays the circle, graph, and the uniform random points on the graph
-    def generate(self):
+    # Runs simulation to on inventories based on input purchase request and inventory quantity amounts
+    def run_simulation(self):
         # Clear the figure in case stuff is on it already
         self.figure.clear()
 
         # create an axis
         ax = self.figure.add_subplot(1, 1, 1)
 
-        # Make the aspect ratio equal and adjustable so that the circle looks like a proper circle
-        plt.gca().set_aspect('equal', adjustable='box')
-
-        # Create a circle
-        circle = patches.Circle(xy=(.5, .5), radius=.5,
-                                linewidth=1, edgecolor='r', facecolor='none')
-
-        # Add the patch to the Axes
-        ax.add_patch(circle)
-
         # Get input N (amount of numbers to generate) from input
         # Make sure the input is a number and is not 0 (to prevent divide by 0 error)
-        if self.random_number_input.text().isnumeric() and int(self.random_number_input.text()) != 0:
-            N = int(self.random_number_input.text())
+        if (self.Q1.text().isnumeric() and int(self.Q1.text()) != 0 
+            and self.Q2.text().isnumeric() and int(self.Q2.text()) != 0
+            and self.P1.text().isnumeric() and int(self.P1.text()) != 0
+            and self.P2.text().isnumeric() and int(self.P2.text()) != 0):
+            self.Q1_inventory = int(self.Q1.text())
+            self.Q2_inventory = int(self.Q2.text())
+            self.P1_request = int(self.P1.text())
+            self.P2_request = int(self.P2.text())
 
-            # Generate N random numbers
-            uniform_numbers = self.generate_uniform_numbers(N)
+            # Prep basics of bar graph
+            labels = ['Q1', 'Q2']
+            label_locs = [1, 2]
+            width = .40
+            ax.bar(label_locs, [self.Q1_inventory,
+                                self.Q2_inventory], width, label='Q1')
 
-            ### Plot all uniform number pairs ###
-            # Create lists of each x and y pair to plot them on a scatter plot
-            uniform_number_x = []
-            uniform_number_y = []
+            # Set Graph labels, title, x-axis
+            ax.set_ylabel('Inventory Available')
+            ax.set_title('Inventory for Store')
+            ax.set_xticks(label_locs)
+            ax.set_xticklabels(labels)
 
-            # Keep track of the number of points inside circle
-            number_points_inside = 0
-            for i in range(len(uniform_numbers)):
-                uniform_number_x.append(uniform_numbers[i][0])
-                uniform_number_y.append(uniform_numbers[i][1])
-                # If the distance of the point from the circle is less than or equal to 0.5,
-                # then that point falls within the circle
-                # Accoount for the fact that the center of the circle is at (0.5, 0.5), so distance
-                # formula for distance from center is sqrt((x - 0.5)^2 + (y - 0.5)^2)
-                if math.sqrt((uniform_numbers[i][0] - 0.5) ** 2 + (uniform_numbers[i][1] - 0.5) ** 2) <= 0.5:
-                    number_points_inside = number_points_inside + 1
-
-            print("number_points_inside == " + str(number_points_inside))
-            print("total_points == " + str(len(uniform_numbers)))
-
-            # Plot all points found in uniform numbers
-            plt.scatter(uniform_number_x, uniform_number_y)
-
-            # Estimated value
-            # Multiply by four based on dividing area of circle (pi/4) by area of square (1), which
-            # means the estimated value should be around pi/4 / 1 = pi/4. Thus, multiplying result by
-            # 4 means that it should yield an estimated value of pi
-            estimated_value = 4 * (number_points_inside / len(uniform_numbers))
-            # Update estimated pi value label
-            self.pi_estimate_text.setText(
-                "Estimated value of pi: " + str(estimated_value))
-
+            
             # refresh canvas
             self.canvas.draw()
         else:
-            print("Input does not contain a valid number")
+            print("Inputs do not contain a valid number")
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
