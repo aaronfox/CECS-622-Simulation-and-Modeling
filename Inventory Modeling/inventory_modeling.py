@@ -101,6 +101,10 @@ class Window(QDialog):
         # Current day of simulation
         self.current_day = 0
 
+        # random.randint generate uniform distribution of integers between 1 and 4, inclusive of both
+        self.P1_purchase_request_wait_time = random.randint(1, 4)
+        self.P2_purchase_request_wait_time = random.randint(1, 4)
+
         # Create initial empty plot for aesthetic purposes
         self.initial_plot()
 
@@ -128,6 +132,36 @@ class Window(QDialog):
 
     # Runs simulation to on inventories based on input purchase request and inventory quantity amounts
     def run_simulation(self):
+
+        # START Run all of simulation in this block
+        # Create array of days up to 50 and then display results
+        # Initial inventory 
+        Q1_inventory_remaining = self.Q1_inventory
+        Q2_inventory_remaining = self.Q2_inventory
+        number_of_days_to_run_simulation = 50
+
+        # Create list of inventory for every day 
+        inventories = [[Q1_inventory_remaining, Q2_inventory_remaining]]
+        temp_purchase_request_times = [[self.P1_purchase_request_wait_time, self.P2_purchase_request_wait_time]]
+
+        for i in range(number_of_days_to_run_simulation):
+            if self.P1_purchase_request_wait_time == 0:
+                Q1_inventory_remaining = Q1_inventory_remaining + self.P1_request
+                self.P1_purchase_request_wait_time = random.randint(1, 4)
+            else:
+                self.P1_purchase_request_wait_time = self.P1_purchase_request_wait_time - 1
+
+            if self.P2_purchase_request_wait_time == 0:
+                Q2_inventory_remaining = Q2_inventory_remaining + self.P2_request
+                self.P2_purchase_request_wait_time = random.randint(1, 4)
+            else:
+                self.P2_purchase_request_wait_time = self.P2_purchase_request_wait_time - 1
+            
+            temp_purchase_request_times.append([self.P1_purchase_request_wait_time, self.P2_purchase_request_wait_time])
+            inventories.append([Q1_inventory_remaining, Q2_inventory_remaining])
+        # END Run of all simulation
+        print(inventories)
+        print(temp_purchase_request_times)
         # Clear the figure in case stuff is on it already
         self.figure.clear()
 
