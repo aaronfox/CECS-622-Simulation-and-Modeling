@@ -15,6 +15,7 @@ import matplotlib.patches as patches  # For bounding square
 
 import random  # For its random.uniform function
 import math  # For using square root to find distance points are from circle center
+import numpy as np # For the use of a Gaussian distribution of the customer purchases
 
 # All of the gui is based out of this Window class using Python PyQt5 GUI framework
 class Window(QDialog):
@@ -50,13 +51,13 @@ class Window(QDialog):
         # every 1 to 4 days. NOTE: P1 << Q1 and P2 << Q2
         # P1 Input and Label
         self.P1 = QLineEdit()
-        self.P1.setText("15")
+        self.P1.setText("105")
         self.P1_label = QLabel()
         self.P1_label.setText("P1: ")
 
         # P2 Input and Label
         self.P2 = QLineEdit()
-        self.P2.setText("10")
+        self.P2.setText("95")
         self.P2_label = QLabel()
         self.P2_label.setText("P2: ")
 
@@ -144,6 +145,7 @@ class Window(QDialog):
         inventories = [[Q1_inventory_remaining, Q2_inventory_remaining]]
         temp_purchase_request_times = [[self.P1_purchase_request_wait_time, self.P2_purchase_request_wait_time]]
 
+        # Run simulation for the input number of dats to run the simulation
         for i in range(number_of_days_to_run_simulation):
             if self.P1_purchase_request_wait_time == 0:
                 Q1_inventory_remaining = Q1_inventory_remaining + self.P1_request
@@ -156,12 +158,54 @@ class Window(QDialog):
                 self.P2_purchase_request_wait_time = random.randint(1, 4)
             else:
                 self.P2_purchase_request_wait_time = self.P2_purchase_request_wait_time - 1
+
+            # Every day, have customers purchase a certain amount of inventory from business
+            # Assume customers can purchase up 
+            # Mean value of days of inventory bought of the original stock value
+            mean_days_of_stock_purchased_by_customers = 25
+            # mean and standard deviation, respectively
+            mu, sigma = self.Q1_inventory/mean_days_of_stock_purchased_by_customers, 100.5
+            distribution_set = np.random.normal(mu, sigma, 1000)
+
+            # Ensure randomly chosen number is not negative (very unlikely given the
+            # Gaussian distribution, but still possible)
+            i = 0
+            normal_random_q1 = distribution_set[i]
+            while normal_random_q1 < 1:
+                i = i + 1
+                normal_random_q1 = distribution_set[i]
+
+            # Ensure independency of values of Q1 and Q2 by making sure they use two separate distributions
+
+            # Mean value of days of inventory bought of the original stock value
+            mean_days_of_stock_purchased_by_customers_q2 = 25
+            # mean and standard deviation, respectively
+            mu, sigma = self.Q2_inventory/mean_days_of_stock_purchased_by_customers_q2, 100.5
+            distribution_set_q2 = np.random.normal(mu, sigma, 1000)
+
+            i = 0
+            normal_random_q2 = distribution_set_q2[i]
+            while normal_random_q2 < 1:
+                i = i + 1
+                normal_random_q2 = distribution_set_q2[i]
+
+            # Decrement respective amounts of stock according to these two independent Gaussian distribution selections
+            Q1_inventory_remaining = Q1_inventory_remaining - math.ceil(normal_random_q1)
+            Q2_inventory_remaining = Q2_inventory_remaining - math.ceil(normal_random_q2)
+
+            # Ensure quantities do not go into the negatives
+            if Q1_inventory_remaining < 0:
+                Q1_inventory_remaining = 0
+
+            if Q2_inventory_remaining < 0:
+                Q2_inventory_remaining = 0
+
             
             temp_purchase_request_times.append([self.P1_purchase_request_wait_time, self.P2_purchase_request_wait_time])
             inventories.append([Q1_inventory_remaining, Q2_inventory_remaining])
         # END Run of all simulation
         print(inventories)
-        print(temp_purchase_request_times)
+        # print(temp_purchase_request_times)
         # Clear the figure in case stuff is on it already
         self.figure.clear()
 
