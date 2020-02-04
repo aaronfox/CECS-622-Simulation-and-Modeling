@@ -14,3 +14,8 @@ Some of the things I've done:
 
 <img src="https://user-images.githubusercontent.com/19690086/73229970-b1d27800-4149-11ea-973f-d4c31e809534.png" alt="3D Space Pursuit with Rays" width="50%" height="50%">
 <img src="https://user-images.githubusercontent.com/19690086/73230062-f5c57d00-4149-11ea-8fc3-ff56f9485a5c.png"  alt="3D Space Pursuit" width="50%" height="50%">
+
+## Inventory Modeling for a Fictional Store
+#### This was a model of a fictional store with various uniform random purchase requests, a Gaussian distribution of customer purchases, and variable inputs allowing the user to visualize the results of the simulation with a line chart and a bar chart; it sure felt like I was an Industrial Engineering major during this project.
+
+<img src="https://user-images.githubusercontent.com/19690086/73704298-8e1aaf00-46c0-11ea-8168-0bc82b33a6bf.png"  alt="Inventory_modeling for a fictional store with PyQt" width="50%" height="50%">
