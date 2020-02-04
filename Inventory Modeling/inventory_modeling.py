@@ -18,8 +18,6 @@ import math  # For using square root to find distance points are from circle cen
 import numpy as np  # For the use of a Gaussian distribution of the customer purchases
 
 # All of the gui is based out of this Window class using Python PyQt5 GUI framework
-
-
 class Window(QDialog):
     def __init__(self, parent=None):
         super(Window, self).__init__(parent)
@@ -173,8 +171,9 @@ class Window(QDialog):
         # refresh canvas
         self.canvas.draw()
 
-    # Plot next day clicked
+    # Plot next day on bar graph
     def next_day_clicked(self):
+        # Make sure that there are simulation results to graph
         if not self.simulation_inventory_results:
             return
         self.figure.clear()
@@ -189,10 +188,7 @@ class Window(QDialog):
         label_locs = [1, 2]
         width = .40
         ax.bar(label_locs, [self.simulation_inventory_results[self.current_day][0], self.simulation_inventory_results[self.current_day][1]], width, label='Q1')
-        # ax.bar(label_locs, [10, 11], width, label='Q1')
-    
 
-        # print('test')
         # Set Graph labels, title, x-axis
         ax.set_ylabel('Inventory Available')
         ax.set_title('Inventory for Store')
@@ -204,6 +200,7 @@ class Window(QDialog):
 
      # Plot previous day on bar graph
     def prev_day_clicked(self):
+        # Ensure there are results to graph
         if not self.simulation_inventory_results:
             return
         self.figure.clear()
@@ -219,9 +216,7 @@ class Window(QDialog):
         width = .40
         ax.bar(label_locs, [self.simulation_inventory_results[self.current_day][0],
                             self.simulation_inventory_results[self.current_day][1]], width, label='Q1')
-        # ax.bar(label_locs, [10, 11], width, label='Q1')
 
-        # print('test')
         # Set Graph labels, title, x-axis
         ax.set_ylabel('Inventory Available')
         ax.set_title('Inventory for Store')
@@ -261,10 +256,6 @@ class Window(QDialog):
             Q1_nums.append(self.simulation_inventory_results[i][0])
             Q2_nums.append(self.simulation_inventory_results[i][1])
 
-        print("Q1_nums == " + str(Q1_nums))
-        print("y_nums == " + str(Q2_nums))
-
-        print("range(len(Q1_nums) == " + str(range(len(Q1_nums))))
         ax.plot(range(len(Q1_nums)), Q1_nums, label='Q1 Inventory')
         ax.plot(range(len(Q2_nums)), Q2_nums, label='Q1 Inventory')
         ax.legend()
@@ -308,9 +299,6 @@ class Window(QDialog):
 
         # Create list of inventory for every day
         inventories=[[Q1_inventory_remaining, Q2_inventory_remaining]]
-        temp_purchase_request_times=[
-            [self.P1_purchase_request_wait_time, self.P2_purchase_request_wait_time]]
-        temp_purchased_amounts=[]
         # Run simulation for the input number of dats to run the simulation
         for i in range(number_of_days_to_run_simulation):
             if self.P1_purchase_request_wait_time == 0:
@@ -355,8 +343,6 @@ class Window(QDialog):
                 i=i + 1
                 normal_random_q2=distribution_set_q2[i]
 
-            temp_purchased_amounts.append([normal_random_q1, normal_random_q2])
-
             # Decrement respective amounts of stock according to these two independent Gaussian distribution selections
             Q1_inventory_remaining=Q1_inventory_remaining - \
                 math.ceil(normal_random_q1)
@@ -370,9 +356,6 @@ class Window(QDialog):
             if Q2_inventory_remaining < 0:
                 Q2_inventory_remaining=0
 
-
-            temp_purchase_request_times.append(
-                [self.P1_purchase_request_wait_time, self.P2_purchase_request_wait_time])
             inventories.append(
                 [Q1_inventory_remaining, Q2_inventory_remaining])
         # END Run of all simulation
@@ -380,8 +363,6 @@ class Window(QDialog):
         print(self.simulation_inventory_results)
         self.plot_line_graph()
 
-        # print(temp_purchased_amounts)
-        # print(temp_purchase_request_times)
         # Clear the figure in case stuff is on it already
         self.figure.clear()
 
