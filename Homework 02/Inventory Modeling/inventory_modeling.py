@@ -257,7 +257,7 @@ class Window(QDialog):
             Q2_nums.append(self.simulation_inventory_results[i][1])
 
         ax.plot(range(len(Q1_nums)), Q1_nums, label='Q1 Inventory')
-        ax.plot(range(len(Q2_nums)), Q2_nums, label='Q1 Inventory')
+        ax.plot(range(len(Q2_nums)), Q2_nums, label='Q2 Inventory')
         ax.legend()
 
         # refresh canvas
