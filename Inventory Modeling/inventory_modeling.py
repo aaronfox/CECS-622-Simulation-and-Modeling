@@ -26,6 +26,9 @@ class Window(QDialog):
         # Allow for easy maximizing of the GUI
         self.setWindowFlag(Qt.WindowMaximizeButtonHint, True)
 
+        # Current day of simulation
+        self.current_day = 0
+
         # Figure instance for plotting
         self.figure = plt.figure()
 
@@ -73,28 +76,31 @@ class Window(QDialog):
         layout.addWidget(self.toolbar)
         layout.addWidget(self.canvas)
 
-        # TEST
+        # For evaluating data in bar chart
         self.day_to_evaluate_value = QLineEdit()
         self.day_to_evaluate_value.setText("1")
         self.day_to_evaluate_label = QLabel()
         self.day_to_evaluate_label.setText("Enter Day to Evaluate: ")
 
+        self.go_to_day_button = QPushButton("Go to Day")
+        self.go_to_day_button.clicked.connect(self.go_to_day_button_clicked)
+
         self.next_day_button = QPushButton("Next Day")
         self.next_day_button.clicked.connect(self.next_day_clicked)
 
         self.prev_day_button = QPushButton("Prev Day")
-        self.next_day_button.clicked.connect(self.prev_day_clicked)
+        self.prev_day_button.clicked.connect(self.prev_day_clicked)
 
         horizontal_layout1 = QHBoxLayout()
         horizontal_layout1.addWidget(self.day_to_evaluate_label)
         horizontal_layout1.addWidget(self.day_to_evaluate_value)
+        horizontal_layout1.addWidget(self.go_to_day_button)
         horizontal_layout1.addWidget(self.prev_day_button)
         horizontal_layout1.addWidget(self.next_day_button)
         layout.addLayout(horizontal_layout1)
 
-        # END TEST
+        # END bar chart GUI manipulation buttons
 
-        # Number of N numbers to generate input
         horizontal_layout = QHBoxLayout()
         horizontal_layout.addWidget(self.Q1_label)
         horizontal_layout.addWidget(self.Q1)
@@ -117,9 +123,6 @@ class Window(QDialog):
         self.P1_request = int(self.P1.text())
         self.P2_request = int(self.P2.text())
 
-        # Current day of simulation
-        self.current_day = 0
-
         # random.randint generate uniform distribution of integers between 1 and 4, inclusive of both
         self.P1_purchase_request_wait_time = random.randint(1, 4)
         self.P2_purchase_request_wait_time = random.randint(1, 4)
@@ -127,7 +130,7 @@ class Window(QDialog):
         # Place all simulation results here
         self.simulation_inventory_results = []
 
-        # Create initial empty plot for aesthetic purposes
+        # Create initial empty bar plot for aesthetic purposes
         self.initial_plot()
 
         # Second Figure for line plot
@@ -139,27 +142,30 @@ class Window(QDialog):
         self.canvas2 = FigureCanvas(self.figure2)
         layout.addWidget(self.canvas2)
         self.lineplot_init()
+        # self.next_day_clicked()
+        # self.next_day_clicked()
 
-    # Plot next day clicked
-    def next_day_clicked(self):
+    # Go to day as specified by user
+    def go_to_day_button_clicked(self):
+        if not self.simulation_inventory_results:
+            return
         self.figure.clear()
 
         # create an axis
         ax = self.figure.add_subplot(1, 1, 1)
-        # plt.gca().set_aspect('equal', adjustable='box')
 
-        self.current_day = self.current_day + 1
+        self.current_day = int(self.day_to_evaluate_value.text())
+        # self.day_to_evaluate_value.setText(str(self.current_day))
 
         labels = ['Q1', 'Q2']
         label_locs = [1, 2]
         width = .40
-        # ax.bar(label_locs, [self.simulation_inventory_results[self.current_day][0], self.simulation_inventory_results[self.current_day][1]], width, label='Q1')
-        ax.bar(label_locs, [10, 11], width, label='Q1')
-    
+        ax.bar(label_locs, [self.simulation_inventory_results[self.current_day][0],
+                            self.simulation_inventory_results[self.current_day][1]], width, label='Q1')
 
-        print('test')
+        # print('test')
         # Set Graph labels, title, x-axis
-        ax.set_ylabel('Inventoryxx Available')
+        ax.set_ylabel('Inventory Available')
         ax.set_title('Inventory for Store')
         ax.set_xticks(label_locs)
         ax.set_xticklabels(labels)
@@ -167,23 +173,55 @@ class Window(QDialog):
         # refresh canvas
         self.canvas.draw()
 
-    # Plot prev day clicked
-    def prev_day_clicked(self):
+    # Plot next day clicked
+    def next_day_clicked(self):
+        if not self.simulation_inventory_results:
+            return
         self.figure.clear()
 
         # create an axis
-        ax=self.figure.add_subplot(1, 1, 1)
-        # plt.gca().set_aspect('equal', adjustable='box')
+        ax = self.figure.add_subplot(1, 1, 1)
 
-        if self.current_day > 0:
-            self.current_day=self.current_day - 1
+        self.current_day = self.current_day + 1
+        self.day_to_evaluate_value.setText(str(self.current_day))
 
-        labels=['Q1', 'Q2']
-        label_locs=[1, 2]
-        width=.40
+        labels = ['Q1', 'Q2']
+        label_locs = [1, 2]
+        width = .40
+        ax.bar(label_locs, [self.simulation_inventory_results[self.current_day][0], self.simulation_inventory_results[self.current_day][1]], width, label='Q1')
+        # ax.bar(label_locs, [10, 11], width, label='Q1')
+    
+
+        # print('test')
+        # Set Graph labels, title, x-axis
+        ax.set_ylabel('Inventory Available')
+        ax.set_title('Inventory for Store')
+        ax.set_xticks(label_locs)
+        ax.set_xticklabels(labels)
+
+        # refresh canvas
+        self.canvas.draw()
+
+     # Plot previous day on bar graph
+    def prev_day_clicked(self):
+        if not self.simulation_inventory_results:
+            return
+        self.figure.clear()
+
+        # create an axis
+        ax = self.figure.add_subplot(1, 1, 1)
+
+        self.current_day = self.current_day - 1
+        self.day_to_evaluate_value.setText(str(self.current_day))
+
+        labels = ['Q1', 'Q2']
+        label_locs = [1, 2]
+        width = .40
         ax.bar(label_locs, [self.simulation_inventory_results[self.current_day][0],
                             self.simulation_inventory_results[self.current_day][1]], width, label='Q1')
+        # ax.bar(label_locs, [10, 11], width, label='Q1')
 
+        # print('test')
         # Set Graph labels, title, x-axis
         ax.set_ylabel('Inventory Available')
         ax.set_title('Inventory for Store')
@@ -203,7 +241,10 @@ class Window(QDialog):
         ax.set_ylabel('Inventory Available')
         ax.set_xlabel('Day')
         ax.set_title('Inventory for Store')
+        self.canvas2.draw()
 
+
+    # Plot the line graph illustrating changes in each inventory
     def plot_line_graph(self):
         self.figure2.clear()
         # create an axis
@@ -224,16 +265,12 @@ class Window(QDialog):
         print("y_nums == " + str(Q2_nums))
 
         print("range(len(Q1_nums) == " + str(range(len(Q1_nums))))
-        Q1_line=ax.plot(range(len(Q1_nums)), Q1_nums)
-        Q2_line=ax.plot(range(len(Q2_nums)), Q2_nums)
-
-        ax.legend((Q1_line, Q2_line), ('Q1 Inventory',
-                  'Q2 Inventory'), loc='upper right')
+        ax.plot(range(len(Q1_nums)), Q1_nums, label='Q1 Inventory')
+        ax.plot(range(len(Q2_nums)), Q2_nums, label='Q1 Inventory')
+        ax.legend()
 
         # refresh canvas
         self.canvas2.draw()
-
-        print("hi")
 
 
     # Initial plot to make the GUI look initially pretty for aesthetic purposes
