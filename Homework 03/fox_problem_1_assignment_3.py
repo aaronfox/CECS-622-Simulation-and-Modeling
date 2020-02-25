@@ -17,7 +17,24 @@ from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.backends.backend_qt5agg import NavigationToolbar2QT as NavigationToolbar
 import matplotlib.pyplot as plt
 
-# GUI for visualizing the tank values
+
+# The tank class
+class tank:
+    def __init__(self, height, area, flow_in, flow_out):
+        pass
+        self.height = height
+        self.area = area
+        self.flow_in = flow_in
+        self.flow_out = flow_out
+
+    def print(self):
+        print("Height == " + str(self.height))
+        print("Area == " + str(self.area))
+        print("Flow in == " + str(self.flow_in))
+        print("Flow out == " + str(self.flow_out))
+
+
+###### GUI for visualizing the tank values ######
 # All of the gui is based out of this Window class using Python PyQt5 GUI framework
 class Window(QDialog):
     def __init__(self, parent=None):
@@ -41,41 +58,47 @@ class Window(QDialog):
         layout.addWidget(self.toolbar)
         layout.addWidget(self.canvas)
 
-        self.go_to_second_button = QPushButton("Go to second")
+        self.go_to_second_label = QLabel()
+        self.go_to_second_label.setText("Enter Second to Evaluate: ")
+        self.go_to_second_value = QLineEdit()
+        self.go_to_second_value.setText("0")
+        self.go_to_second_button = QPushButton("Go to Second")
         self.go_to_second_button.clicked.connect(self.go_to_second_button_clicked)
 
-        self.next_second_button = QPushButton("Next second")
+        self.next_second_button = QPushButton("Next Second")
         self.next_second_button.clicked.connect(self.next_second_clicked)
 
-        self.prev_second_button = QPushButton("Prev second")
+        self.prev_second_button = QPushButton("Prev Second")
         self.prev_second_button.clicked.connect(self.prev_second_clicked)
 
         horizontal_layout1 = QHBoxLayout()
+        horizontal_layout1.addWidget(self.go_to_second_label)
+        horizontal_layout1.addWidget(self.go_to_second_value)
         horizontal_layout1.addWidget(self.go_to_second_button)
         horizontal_layout1.addWidget(self.prev_second_button)
         horizontal_layout1.addWidget(self.next_second_button)
         layout.addLayout(horizontal_layout1)
 
         # Second horizontal layout: All input info for Tank 1
-        self.tank_1_area = QLineEdit()
-        self.tank_1_area.setText("10")
         self.tank_1_area_label = QLabel()
         self.tank_1_area_label.setText("Tank 1 Area: ")
+        self.tank_1_area = QLineEdit()
+        self.tank_1_area.setText("1.0")
 
-        self.tank_1_height = QLineEdit()
-        self.tank_1_height.setText("1")
         self.tank_1_height_label = QLabel()
         self.tank_1_height_label.setText("Height: ")
-
-        self.tank_1_flow_in = QLineEdit()
-        self.tank_1_flow_in.setText("1")
+        self.tank_1_height = QLineEdit()
+        self.tank_1_height.setText("0.0")
+    
         self.tank_1_flow_in_label = QLabel()
         self.tank_1_flow_in_label.setText("Flow In Rate: ")
-
-        self.tank_1_flow_out = QLineEdit()
-        self.tank_1_flow_out.setText("2")
+        self.tank_1_flow_in = QLineEdit()
+        self.tank_1_flow_in.setText("0.01")
+        
         self.tank_1_flow_out_label = QLabel()
         self.tank_1_flow_out_label.setText("Flow Out Rate: ")
+        self.tank_1_flow_out = QLineEdit()
+        self.tank_1_flow_out.setText(".01")
 
         horizontal_layout2 = QHBoxLayout()
         horizontal_layout2.addWidget(self.tank_1_area_label)
@@ -90,33 +113,26 @@ class Window(QDialog):
         layout.addLayout(horizontal_layout2)
 
         # third horizontal layout: All input info for Tank 1
-        self.tank_2_area = QLineEdit()
-        self.tank_2_area.setText("20")
         self.tank_2_area_label = QLabel()
         self.tank_2_area_label.setText("Tank 2 Area: ")
+        self.tank_2_area = QLineEdit()
+        self.tank_2_area.setText("2.0")
 
-        self.tank_2_height = QLineEdit()
-        self.tank_2_height.setText("2")
         self.tank_2_height_label = QLabel()
         self.tank_2_height_label.setText("Height: ")
-
-        self.tank_2_flow_in = QLineEdit()
-        self.tank_2_flow_in.setText("2")
-        self.tank_2_flow_in_label = QLabel()
-        self.tank_2_flow_in_label.setText("Flow In Rate: ")
-
-        self.tank_2_flow_out = QLineEdit()
-        self.tank_2_flow_out.setText("2")
+        self.tank_2_height = QLineEdit()
+        self.tank_2_height.setText("0.0")
+        
         self.tank_2_flow_out_label = QLabel()
         self.tank_2_flow_out_label.setText("Flow Out Rate: ")
+        self.tank_2_flow_out = QLineEdit()
+        self.tank_2_flow_out.setText("0.02")
 
         horizontal_layout3 = QHBoxLayout()
         horizontal_layout3.addWidget(self.tank_2_area_label)
         horizontal_layout3.addWidget(self.tank_2_area)
         horizontal_layout3.addWidget(self.tank_2_height_label)
         horizontal_layout3.addWidget(self.tank_2_height)
-        horizontal_layout3.addWidget(self.tank_2_flow_in_label)
-        horizontal_layout3.addWidget(self.tank_2_flow_in)
         horizontal_layout3.addWidget(self.tank_2_flow_out_label)
         horizontal_layout3.addWidget(self.tank_2_flow_out)
 
@@ -174,8 +190,8 @@ class Window(QDialog):
                             30], width, label='Q1')
 
         # Set Graph labels, title, x-axis
-        ax.set_ylabel('Liters in Tank')
-        ax.set_title('Liters in Coupled Tanks')
+        ax.set_ylabel('Height of Fluid')
+        ax.set_title('Height of Fluid in Coupled Tanks')
         ax.set_xticks(label_locs)
         ax.set_xticklabels(labels)
 
@@ -194,33 +210,104 @@ class Window(QDialog):
         ax.set_title('Inventory for Store')
         self.canvas2.draw()
 
+    # Plot the line graph illustrating changes in each inventory
+    def plot_line_graph(self):
+        self.figure2.clear()
+        # create an axis
+        ax = self.figure2.add_subplot(1, 1, 1)
+
+        # Set Graph labels, title, x-axis
+        ax.set_ylabel('Height of Fluid')
+        ax.set_xlabel('Second')
+        ax.set_title('Height of Fluid in Coupled Tanks')
+
+        tank_1_x = []
+        tank_1_y = []
+        tank_2_x = []
+        tank_2_y = []
+        for i in range(len(self.tank_1_simulation_results)):
+            tank_1_x.append(self.tank_1_simulation_results[i][0])
+            tank_1_y.append(self.tank_1_simulation_results[i][1])
+            tank_2_x.append(self.tank_2_simulation_results[i][0])
+            tank_2_y.append(self.tank_2_simulation_results[i][1])
+
+        ax.plot(tank_1_x, tank_1_y, label='Tank 1')
+        ax.plot(tank_2_x, tank_2_y, label='Tank 2')
+        ax.legend()
+
+        # refresh canvas
+        self.canvas2.draw()
+
+    # Makes sure a value is float
+    def is_float(self, string):
+        try:
+            float(string)
+            return True
+        except ValueError:
+            return False
     def run_simulation(self):
         print("Running simulation")
+        # Upper tank of the two coupled tanks
+        upper_tank = tank(height=2, area=10, flow_in=1, flow_out=2)
+        # Lower tank of the two coupled tanks
+        lower_tank = tank(height=3, area=40, flow_in=1, flow_out=2)
 
-# The tank class
-class tank:
-    def __init__(self, height, area, flow_in, flow_out):
-        pass
-        self.height = height
-        self.area = area
-        self.flow_in = flow_in
-        self.flow_out = flow_out
-    
-    def print(self):
-        print("Height == " + str(self.height))
-        print("Area == " + str(self.area))
-        print("Flow in == " + str(self.flow_in))
-        print("Flow out == " + str(self.flow_out))
+        if self.is_float(self.tank_1_area.text()):
+            print("yay")
+
+        # Get input numbers from input boxes to run sim
+        if (self.is_float(self.tank_1_area.text()) and self.is_float(self.tank_1_area.text())
+            and self.is_float(self.tank_1_height.text()) and self.is_float(self.tank_1_flow_in.text())
+              and self.is_float(self.tank_1_flow_out.text()) and self.is_float(self.tank_2_area.text()) 
+              and self.is_float(self.tank_2_height.text()) and self.is_float(self.tank_2_flow_out.text())):
+           # Inside if loop, set all respective values 
+           print("in if")
+           self.tank_1_area_value = float(self.tank_1_area.text())
+           self.tank_1_height_value = float(self.tank_1_height.text())
+           self.tank_1_flow_in_value = float(self.tank_1_flow_in.text())
+           self.tank_1_flow_out_value = float(self.tank_1_flow_out.text())
+           self.tank_2_area_value = float(self.tank_2_area.text())
+           self.tank_2_height_value = float(self.tank_2_height.text())
+           self.tank_2_flow_out_value = float(self.tank_2_flow_out.text())
+        
+        # upper_tank.print()
+        # lower_tank.print()
+        self.seconds_to_run = 100
+
+        self.tank_1_simulation_results = []
+        self.tank_2_simulation_results = []
+
+        # Since flow rates and areas are constant, we only need to calculate rate of change of heights once
+        tank_1_rate_of_change_of_height = (self.tank_1_flow_in_value - self.tank_1_flow_out_value) / self.tank_1_area_value
+        tank_2_rate_of_change_of_height = (self.tank_1_flow_out_value - self.tank_2_flow_out_value) / self.tank_2_area_value
+
+        tank_1_current_height = self.tank_1_height_value
+        tank_2_current_height = self.tank_2_height_value
+        self.tank_1_simulation_results.append([0, tank_1_current_height])
+        self.tank_2_simulation_results.append([0, tank_2_current_height])
+
+        # Core of sim runs here
+        for i in range(1, self.seconds_to_run + 1):
+            tank_1_current_height = tank_1_current_height + tank_1_rate_of_change_of_height
+            tank_2_current_height = tank_2_current_height + tank_2_rate_of_change_of_height
+            self.tank_1_simulation_results.append([i, tank_1_current_height])
+            self.tank_2_simulation_results.append([i, tank_2_current_height])
+
+        self.plot_line_graph()
+
+
+
+###### END GUI #####
 
 if __name__ == "__main__":
     print("Running Assignment 3 Problem 1")
-    # Upper tank of the two coupled tanks
-    upper_tank = tank(height=2, area=10, flow_in=1, flow_out=2)
-    # Lower tank of the two coupled tanks
-    lower_tank = tank(height=3, area=40, flow_in=1, flow_out=2)
+    # # Upper tank of the two coupled tanks
+    # upper_tank = tank(height=2, area=10, flow_in=1, flow_out=2)
+    # # Lower tank of the two coupled tanks
+    # lower_tank = tank(height=3, area=40, flow_in=1, flow_out=2)
 
-    upper_tank.print()
-    lower_tank.print()
+    # upper_tank.print()
+    # lower_tank.print()
 
     app = QApplication(sys.argv)
 
