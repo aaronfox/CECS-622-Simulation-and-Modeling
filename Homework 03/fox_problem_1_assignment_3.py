@@ -24,6 +24,7 @@ class Window(QDialog):
         super(Window, self).__init__(parent)
         # Allow for easy maximizing of the GUI
         self.setWindowFlag(Qt.WindowMaximizeButtonHint, True)
+        self.setWindowTitle("Coupled Tank Simulation")
 
         # Figure instance for plotting
         self.figure = plt.figure()
@@ -121,6 +122,16 @@ class Window(QDialog):
 
         layout.addLayout(horizontal_layout3)
 
+        # Fourth horizontal layout is to run the simulation!
+        # Button connected to generation of points on figure to visually
+        # display the uniform random distribution of points inside/outside the circle
+        self.run_sim_button = QPushButton('Run Simulation')
+        self.run_sim_button.clicked.connect(self.run_simulation)
+        horizontal_layout4 = QHBoxLayout()
+        horizontal_layout4.addWidget(self.run_sim_button)
+
+        layout.addLayout(horizontal_layout4)
+
         # Add parent layout as layout
         self.setLayout(layout)
 
@@ -182,6 +193,9 @@ class Window(QDialog):
         ax.set_xlabel('Day')
         ax.set_title('Inventory for Store')
         self.canvas2.draw()
+
+    def run_simulation(self):
+        print("Running simulation")
 
 # The tank class
 class tank:
