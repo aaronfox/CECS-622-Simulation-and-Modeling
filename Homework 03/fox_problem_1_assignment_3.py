@@ -21,7 +21,6 @@ import matplotlib.pyplot as plt
 # The tank class
 class tank:
     def __init__(self, height, area, flow_in, flow_out):
-        pass
         self.height = height
         self.area = area
         self.flow_in = flow_in
@@ -53,6 +52,12 @@ class Window(QDialog):
         # Adds toolbar to top of GUI for saving pictures, zooming in graph, etc.
         self.toolbar = NavigationToolbar(self.canvas, self)
 
+        # For keeping track of day evaluation of bar charts
+        self.current_second = 0
+
+        # For making sure they don't try to evaluate without having run sim
+        self.has_run_sim = False
+
         # set the layout (vertical)
         layout = QVBoxLayout()
         layout.addWidget(self.toolbar)
@@ -83,12 +88,12 @@ class Window(QDialog):
         self.tank_1_area_label = QLabel()
         self.tank_1_area_label.setText("Tank 1 Area: ")
         self.tank_1_area = QLineEdit()
-        self.tank_1_area.setText("1.0")
+        self.tank_1_area.setText("2.0")
 
         self.tank_1_height_label = QLabel()
         self.tank_1_height_label.setText("Height: ")
         self.tank_1_height = QLineEdit()
-        self.tank_1_height.setText("0.0")
+        self.tank_1_height.setText("1.5")
     
         self.tank_1_flow_in_label = QLabel()
         self.tank_1_flow_in_label.setText("Flow In Rate: ")
@@ -121,7 +126,7 @@ class Window(QDialog):
         self.tank_2_height_label = QLabel()
         self.tank_2_height_label.setText("Height: ")
         self.tank_2_height = QLineEdit()
-        self.tank_2_height.setText("0.0")
+        self.tank_2_height.setText("1.0")
         
         self.tank_2_flow_out_label = QLabel()
         self.tank_2_flow_out_label.setText("Flow Out Rate: ")
@@ -165,15 +170,66 @@ class Window(QDialog):
 
     # Plot previous second of graph
     def prev_second_clicked(self):
-        print("Clicked previous second")
+        if not self.has_run_sim:
+            print("Please run at least one simulation first")
+            return
+        if self.current_second <= 0:
+            print("Cannot go before 0 seconds in this simulation")
+            return
+        self.current_second = int(self.go_to_second_value.text())
+        self.current_second = self.current_second - 1
+        self.go_to_second_value.setText(str(self.current_second))
+        self.go_to_second_button_clicked()
 
     # Plot next second of graph
     def next_second_clicked(self):
-        print("Clicked next second")
+        if not self.has_run_sim:
+            print("Please run at least one simulation first")
+            return
+        if self.current_second >= self.seconds_to_run:
+            print("Cannot go after " + self.seconds_to_run + " seconds in this simulation.")
+            print("Please adjust self.seconds_to_run to raise the limit if needed")
+            return
+        self.current_second = int(self.go_to_second_value.text())
+        self.current_second = self.current_second + 1
+        self.go_to_second_value.setText(str(self.current_second))
+        self.go_to_second_button_clicked()
 
     # Go to second as specified by user
     def go_to_second_button_clicked(self):
-        print("Clicked go to second")
+        if not self.has_run_sim:
+            print("Please run at least one simulation first")
+            return
+        if not self.go_to_second_value.text().isnumeric():
+            print("Please enter an integer second value")
+            return
+        if int(self.go_to_second_value.text()) > self.seconds_to_run:
+            print("Please enter an integer value less than or equal to " + str(self.seconds_to_run))
+            return
+        
+        self.current_second = int(self.go_to_second_value.text())
+
+        self.figure.clear()
+
+        # create an axis
+        ax = self.figure.add_subplot(1, 1, 1)
+
+        tank_1_val = self.tank_1_simulation_results[self.current_second][1]
+        tank_2_val = self.tank_2_simulation_results[self.current_second][1]
+        labels = ['Tank 1', 'Tank 2']
+        label_locs = [1, 2]
+        width = .40
+        ax.bar(label_locs, [tank_1_val,
+                            tank_2_val], width, label='Tanks')
+
+        # Set Graph labels, title, x-axis
+        ax.set_ylabel('Height of Fluid')
+        ax.set_title('Height of Fluid in Coupled Tanks')
+        ax.set_xticks(label_locs)
+        ax.set_xticklabels(labels)
+
+        # refresh canvas
+        self.canvas.draw()
     
     # Initial plot to make the GUI look initially pretty for aesthetic purposes
     def initial_plot(self):
@@ -187,7 +243,7 @@ class Window(QDialog):
         label_locs = [1, 2]
         width = .40
         ax.bar(label_locs, [40,
-                            30], width, label='Q1')
+                            30], width, label='Tanks')
 
         # Set Graph labels, title, x-axis
         ax.set_ylabel('Height of Fluid')
@@ -247,13 +303,11 @@ class Window(QDialog):
             return False
     def run_simulation(self):
         print("Running simulation")
-        # Upper tank of the two coupled tanks
-        upper_tank = tank(height=2, area=10, flow_in=1, flow_out=2)
-        # Lower tank of the two coupled tanks
-        lower_tank = tank(height=3, area=40, flow_in=1, flow_out=2)
-
-        if self.is_float(self.tank_1_area.text()):
-            print("yay")
+        self.has_run_sim = True
+        # # Upper tank of the two coupled tanks
+        # upper_tank = tank(height=2, area=10, flow_in=1, flow_out=2)
+        # # Lower tank of the two coupled tanks
+        # lower_tank = tank(height=3, area=40, flow_in=1, flow_out=2)
 
         # Get input numbers from input boxes to run sim
         if (self.is_float(self.tank_1_area.text()) and self.is_float(self.tank_1_area.text())
@@ -261,7 +315,6 @@ class Window(QDialog):
               and self.is_float(self.tank_1_flow_out.text()) and self.is_float(self.tank_2_area.text()) 
               and self.is_float(self.tank_2_height.text()) and self.is_float(self.tank_2_flow_out.text())):
            # Inside if loop, set all respective values 
-           print("in if")
            self.tank_1_area_value = float(self.tank_1_area.text())
            self.tank_1_height_value = float(self.tank_1_height.text())
            self.tank_1_flow_in_value = float(self.tank_1_flow_in.text())
@@ -270,9 +323,7 @@ class Window(QDialog):
            self.tank_2_height_value = float(self.tank_2_height.text())
            self.tank_2_flow_out_value = float(self.tank_2_flow_out.text())
         
-        # upper_tank.print()
-        # lower_tank.print()
-        self.seconds_to_run = 100
+        self.seconds_to_run = 1000
 
         self.tank_1_simulation_results = []
         self.tank_2_simulation_results = []
@@ -285,11 +336,27 @@ class Window(QDialog):
         tank_2_current_height = self.tank_2_height_value
         self.tank_1_simulation_results.append([0, tank_1_current_height])
         self.tank_2_simulation_results.append([0, tank_2_current_height])
+        current_tank_2_rate_of_change_of_height = 0
 
         # Core of sim runs here
         for i in range(1, self.seconds_to_run + 1):
             tank_1_current_height = tank_1_current_height + tank_1_rate_of_change_of_height
-            tank_2_current_height = tank_2_current_height + tank_2_rate_of_change_of_height
+
+            # Make sure height of upper tank allows for the proper amount of 
+            # flow to bottom tank (e.g. if tank_1_current_height) is above current rate so that
+            if tank_1_current_height < tank_2_rate_of_change_of_height:
+                current_tank_2_rate_of_change_of_height = tank_1_current_height
+            else:
+                current_tank_2_rate_of_change_of_height = tank_2_rate_of_change_of_height
+
+            if tank_1_current_height < 0:
+                tank_1_current_height = 0.0
+
+            tank_2_current_height = tank_2_current_height + current_tank_2_rate_of_change_of_height#tank_2_rate_of_change_of_height
+            
+            if tank_2_current_height < 0:
+                tank_2_current_height = 0.0
+
             self.tank_1_simulation_results.append([i, tank_1_current_height])
             self.tank_2_simulation_results.append([i, tank_2_current_height])
 
