@@ -17,6 +17,9 @@ from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.backends.backend_qt5agg import NavigationToolbar2QT as NavigationToolbar
 import matplotlib.pyplot as plt
 
+# For basic math like absolute value
+import math
+
 
 # The tank class
 class tank:
@@ -88,7 +91,7 @@ class Window(QDialog):
         self.tank_1_area_label = QLabel()
         self.tank_1_area_label.setText("Tank 1 Area: ")
         self.tank_1_area = QLineEdit()
-        self.tank_1_area.setText("2.0")
+        self.tank_1_area.setText("1.0")
 
         self.tank_1_height_label = QLabel()
         self.tank_1_height_label.setText("Height: ")
@@ -103,7 +106,7 @@ class Window(QDialog):
         self.tank_1_flow_out_label = QLabel()
         self.tank_1_flow_out_label.setText("Flow Out Rate: ")
         self.tank_1_flow_out = QLineEdit()
-        self.tank_1_flow_out.setText(".01")
+        self.tank_1_flow_out.setText("0.01")
 
         horizontal_layout2 = QHBoxLayout()
         horizontal_layout2.addWidget(self.tank_1_area_label)
@@ -323,7 +326,7 @@ class Window(QDialog):
            self.tank_2_height_value = float(self.tank_2_height.text())
            self.tank_2_flow_out_value = float(self.tank_2_flow_out.text())
         
-        self.seconds_to_run = 1000
+        self.seconds_to_run = 300
 
         self.tank_1_simulation_results = []
         self.tank_2_simulation_results = []
@@ -340,19 +343,66 @@ class Window(QDialog):
 
         # Core of sim runs here
         for i in range(1, self.seconds_to_run + 1):
+            # Since the rate of change of tank 1 is always constant bc its flow is effectively
+            # decoupled from the flow of tank 2, just add the current rate of change of height per second of tank
+            # to the current height of tank 1
             tank_1_current_height = tank_1_current_height + tank_1_rate_of_change_of_height
 
-            # Make sure height of upper tank allows for the proper amount of 
-            # flow to bottom tank (e.g. if tank_1_current_height) is above current rate so that
-            if tank_1_current_height < tank_2_rate_of_change_of_height:
-                current_tank_2_rate_of_change_of_height = tank_1_current_height
+            # TODO: Make sure tank_1_rate_of_change_of_height is correct based on tank 1's height also
+            # TODO: solve problem where, although tank 1's current height doesn't change if the flow coming in and
+            # the flow coming out are the same, the flow is accounted for in the output
+            # This means the flow out of tank 1 must at least be equal to the flow in to tank 1 if the
+            # input flow into the tank is less than or greater than the output flow in to the tank
+
+            # BUT, since Tank 2's flow is couple with Tank 1, we must make sure that the current rate of
+            # change of tank 2 is correct
+            # Basically, tank 1's rate of flow out can be only be at the given input maximum if and only if
+            # the current height of tank 1 is at least the given input rate of flow out of tank 1
+            # current_tank_1_flow_out = 0
+            # if tank_1_current_height < self.tank_1_flow_out_value:
+            #     current_tank_1_flow_out = tank_1_current_height
+                
+            # else:
+            #     current_tank_1_flow_out = self.tank_1_flow_out_value
+
+            # current_tank_1_flow_out = 0
+            # # If output of tank 1 flow is less than or equal to input of tank 1 flow, then always use max outflow
+            # if self.tank_1_flow_out_value <= self.tank_1_flow_in_value:
+            #     current_tank_1_flow_out = self.tank_1_flow_out_value
+            # else: # If outflow of tank 1 is greater than inflow of tank 1, then set outflow to be equal to inflow level
+            #     current_tank_1_flow_out = self.tank_1_flow_in_value
+
+            current_tank_1_flow_out = 0
+            if tank_1_current_height < self.tank_1_flow_out_value:
+                # current_tank_1_flow_out = tank_1_current_height
+                # If output of tank 1 flow is less than or equal to input of tank 1 flow, then always use max outflow
+                if self.tank_1_flow_out_value <= self.tank_1_flow_in_value:
+                    current_tank_1_flow_out = self.tank_1_flow_out_value
+                else:  # If outflow of tank 1 is greater than inflow of tank 1, then set outflow to be equal to inflow level plus whatever height is left in tank
+                    current_tank_1_flow_out = self.tank_1_flow_in_value + tank_1_current_height
             else:
-                current_tank_2_rate_of_change_of_height = tank_2_rate_of_change_of_height
+                current_tank_1_flow_out = self.tank_1_flow_out_value
+
+
+
+
+
+            current_tank_2_rate_of_change_of_height = (current_tank_1_flow_out - self.tank_2_flow_out_value) / self.tank_2_area_value
+
+            # # Make sure height of upper tank allows for the proper amount of 
+            # # flow to bottom tank (e.g. if tank_1_current_height) is above current rate so that
+            # if tank_1_current_height < abs(tank_2_rate_of_change_of_height):
+            #     current_tank_2_rate_of_change_of_height = tank_1_current_height
+            #     print("changing current_tank_2_rate_of_change_of_height to " + str(current_tank_2_rate_of_change_of_height))
+            # else:
+            #     current_tank_2_rate_of_change_of_height = tank_2_rate_of_change_of_height
+            #     print("Keeping current_tank_2_rate_of_change_of_height at " + str(current_tank_2_rate_of_change_of_height))
+
 
             if tank_1_current_height < 0:
                 tank_1_current_height = 0.0
 
-            tank_2_current_height = tank_2_current_height + current_tank_2_rate_of_change_of_height#tank_2_rate_of_change_of_height
+            tank_2_current_height = tank_2_current_height + current_tank_2_rate_of_change_of_height #tank_2_rate_of_change_of_height
             
             if tank_2_current_height < 0:
                 tank_2_current_height = 0.0
