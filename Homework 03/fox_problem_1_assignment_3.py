@@ -306,7 +306,7 @@ class Window(QDialog):
             return False
     def run_simulation(self):
         print("Running simulation")
-        self.has_run_sim = True
+        
         # # Upper tank of the two coupled tanks
         # upper_tank = tank(height=2, area=10, flow_in=1, flow_out=2)
         # # Lower tank of the two coupled tanks
@@ -325,13 +325,18 @@ class Window(QDialog):
            self.tank_2_area_value = float(self.tank_2_area.text())
            self.tank_2_height_value = float(self.tank_2_height.text())
            self.tank_2_flow_out_value = float(self.tank_2_flow_out.text())
+           self.has_run_sim = True
+        else:
+            print("Invalid input variables. Please enter float values for all inputs.")
+            return
         
-        self.seconds_to_run = 300
+        self.seconds_to_run = 1000
 
         self.tank_1_simulation_results = []
         self.tank_2_simulation_results = []
 
-        # Since flow rates and areas are constant, we only need to calculate rate of change of heights once
+        # Since flow rates and areas are assumed constant, we only need to calculate rate of change of heights
+        # (Although these flow rates can change based on the height of the liquid and the input flows to each tank)
         tank_1_rate_of_change_of_height = (self.tank_1_flow_in_value - self.tank_1_flow_out_value) / self.tank_1_area_value
         tank_2_rate_of_change_of_height = (self.tank_1_flow_out_value - self.tank_2_flow_out_value) / self.tank_2_area_value
 
