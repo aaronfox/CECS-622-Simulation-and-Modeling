@@ -1,6 +1,6 @@
 # Aaron Fox
 # CECS 622-01
-# Dr.  Elmaghraby
+# Dr. Elmaghraby
 # Assignment 3 Problem 1
 # The "coupled tank" tank problem has a tank with two differential equations
 # as follows:
@@ -330,7 +330,7 @@ class Window(QDialog):
             print("Invalid input variables. Please enter float values for all inputs.")
             return
         
-        self.seconds_to_run = 1000
+        self.seconds_to_run = 500
 
         self.tank_1_simulation_results = []
         self.tank_2_simulation_results = []
@@ -353,30 +353,16 @@ class Window(QDialog):
             # to the current height of tank 1
             tank_1_current_height = tank_1_current_height + tank_1_rate_of_change_of_height
 
-            # TODO: Make sure tank_1_rate_of_change_of_height is correct based on tank 1's height also
-            # TODO: solve problem where, although tank 1's current height doesn't change if the flow coming in and
+            # Make sure tank_1_rate_of_change_of_height is correct based on tank 1's height also
+            # solve problem where, although tank 1's current height doesn't change if the flow coming in and
             # the flow coming out are the same, the flow is accounted for in the output
             # This means the flow out of tank 1 must at least be equal to the flow in to tank 1 if the
             # input flow into the tank is less than or greater than the output flow in to the tank
-
             # BUT, since Tank 2's flow is couple with Tank 1, we must make sure that the current rate of
             # change of tank 2 is correct
             # Basically, tank 1's rate of flow out can be only be at the given input maximum if and only if
             # the current height of tank 1 is at least the given input rate of flow out of tank 1
-            # current_tank_1_flow_out = 0
-            # if tank_1_current_height < self.tank_1_flow_out_value:
-            #     current_tank_1_flow_out = tank_1_current_height
-                
-            # else:
-            #     current_tank_1_flow_out = self.tank_1_flow_out_value
-
-            # current_tank_1_flow_out = 0
-            # # If output of tank 1 flow is less than or equal to input of tank 1 flow, then always use max outflow
-            # if self.tank_1_flow_out_value <= self.tank_1_flow_in_value:
-            #     current_tank_1_flow_out = self.tank_1_flow_out_value
-            # else: # If outflow of tank 1 is greater than inflow of tank 1, then set outflow to be equal to inflow level
-            #     current_tank_1_flow_out = self.tank_1_flow_in_value
-
+            
             current_tank_1_flow_out = 0
             if tank_1_current_height < self.tank_1_flow_out_value:
                 # current_tank_1_flow_out = tank_1_current_height
@@ -389,21 +375,8 @@ class Window(QDialog):
                 current_tank_1_flow_out = self.tank_1_flow_out_value
 
 
-
-
-
             current_tank_2_rate_of_change_of_height = (current_tank_1_flow_out - self.tank_2_flow_out_value) / self.tank_2_area_value
-
-            # # Make sure height of upper tank allows for the proper amount of 
-            # # flow to bottom tank (e.g. if tank_1_current_height) is above current rate so that
-            # if tank_1_current_height < abs(tank_2_rate_of_change_of_height):
-            #     current_tank_2_rate_of_change_of_height = tank_1_current_height
-            #     print("changing current_tank_2_rate_of_change_of_height to " + str(current_tank_2_rate_of_change_of_height))
-            # else:
-            #     current_tank_2_rate_of_change_of_height = tank_2_rate_of_change_of_height
-            #     print("Keeping current_tank_2_rate_of_change_of_height at " + str(current_tank_2_rate_of_change_of_height))
-
-
+          
             if tank_1_current_height < 0:
                 tank_1_current_height = 0.0
 
@@ -417,20 +390,10 @@ class Window(QDialog):
 
         self.plot_line_graph()
 
-
-
 ###### END GUI #####
 
 if __name__ == "__main__":
     print("Running Assignment 3 Problem 1")
-    # # Upper tank of the two coupled tanks
-    # upper_tank = tank(height=2, area=10, flow_in=1, flow_out=2)
-    # # Lower tank of the two coupled tanks
-    # lower_tank = tank(height=3, area=40, flow_in=1, flow_out=2)
-
-    # upper_tank.print()
-    # lower_tank.print()
-
     app = QApplication(sys.argv)
 
     main = Window()
