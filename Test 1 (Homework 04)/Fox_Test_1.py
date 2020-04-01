@@ -22,12 +22,13 @@ import random # Using randint and shuffle
 # + If a student has shared the rumor once with a student already and meets up with them again,
 #   then that student cannot share the rumor again and it won't count toward the 2 times
 #   that the receiving student has heard a rumor.
+# + Likewise, students can keep track of who has told them the rumor so they can't "spread" the rumor to someone
+#   who has already told them the rumor.
 # + If both students in a pair have heard the rumor and haven't previously spread the rumor to the other,
 #   they each still have the possibility to tell the other student about the rumor (if the random likelihood is true),
 #   and a randomly chosen student in the pair is chosen to first tell the rumor. If the first student's attempt is
-#   not successful, then the second student can try.
-# + Students can keep track of who has told them the rumor so they can't "spread" the rumor to someone
-#   who has already told them the rumor.
+#   not successful, then the second student can try to spread the rumor to the first.
+
 
 # The Student class keeps track of if the student has heard the rumor, the number of times
 # that the student has heard the rumor, their unique student ID, the likelihood of each student
@@ -55,8 +56,6 @@ class Student:
         # to to ensure that the student doesn't try to spread the rumor to one
         # person twice and increase another student's times_heard_rumor twice
         self.students_spread_rumor_to = []
-
-        # TODO: Keep track of who has told students the rumor also so students can't "spread" the rumor to someone who has already told them the rumor
 
 
     def __repr__(self):
