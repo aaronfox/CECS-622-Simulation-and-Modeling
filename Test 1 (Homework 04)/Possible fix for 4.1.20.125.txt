@@ -1,0 +1,57 @@
+PS C:\Users\aaron\Classes_11th_Semester\CECS 622\CECS-622-Simulation-and-Modeling\Test 1 (Homework 04)> python -u "c:\Users\aaron\Classes_11th_Semester\CECS 622\CECS-622-Simulation-and-Modeling\Test 1 (Homework 04)\Fox_Test_1.py"
+students == [Student ID: 6, Student ID: 1, Student ID: 0, Student ID: 5, Student ID: 7, Student ID: 9, Student ID: 8, Student ID: 2, Student ID: 3, Student ID: 4]
+Pairing Student ID: 6 with Student ID: 1
+Pairing Student ID: 0 with Student ID: 5
+Pairing Student ID: 7 with Student ID: 9
+Pairing Student ID: 8 with Student ID: 2
+Pairing Student ID: 3 with Student ID: 4
+First spread from initial Student ID: 3 to Student ID: 4
+students == [Student ID: 1, Student ID: 5, Student ID: 7, Student ID: 2, Student ID: 8, Student ID: 4, Student ID: 9, Student ID: 6, Student ID: 3, Student ID: 0]
+Pairing Student ID: 1 with Student ID: 5
+Pairing Student ID: 7 with Student ID: 2
+Pairing Student ID: 8 with Student ID: 4
+Student ID: 4 can spread to Student ID: 8!
+Spread from Student ID: 4 to Student ID: 8
+Pairing Student ID: 9 with Student ID: 6
+Pairing Student ID: 3 with Student ID: 0
+Student ID: 3 can spread to Student ID: 0!
+students == [Student ID: 4, Student ID: 0, Student ID: 7, Student ID: 9, Student ID: 6, Student ID: 2, Student ID: 8, Student ID: 3, Student ID: 5, Student ID: 1]
+Pairing Student ID: 4 with Student ID: 0
+Student ID: 4 can spread to Student ID: 0!
+Pairing Student ID: 7 with Student ID: 9
+Pairing Student ID: 6 with Student ID: 2
+Pairing Student ID: 8 with Student ID: 3
+Student ID: 8 can spread to Student ID: 3!
+Student ID: 3 can spread to Student ID: 8!
+Spread from Student ID: 3 to Student ID: 8
+Pairing Student ID: 5 with Student ID: 1
+students == [Student ID: 4, Student ID: 6, Student ID: 5, Student ID: 9, Student ID: 0, Student ID: 7, Student ID: 1, Student ID: 8, Student ID: 3, Student ID: 2]
+Pairing Student ID: 4 with Student ID: 6
+Student ID: 4 can spread to Student ID: 6!
+Spread from Student ID: 4 to Student ID: 6
+Pairing Student ID: 5 with Student ID: 9
+Pairing Student ID: 0 with Student ID: 7
+Pairing Student ID: 1 with Student ID: 8
+Student ID: 8 CANNOT spread to Student ID: 1
+Pairing Student ID: 3 with Student ID: 2
+Student ID: 3 can spread to Student ID: 2!
+students == [Student ID: 7, Student ID: 8, Student ID: 2, Student ID: 1, Student ID: 3, Student ID: 4, Student ID: 6, Student ID: 9, Student ID: 5, Student ID: 0]
+Pairing Student ID: 7 with Student ID: 8
+Student ID: 8 CANNOT spread to Student ID: 7
+Pairing Student ID: 2 with Student ID: 1
+Pairing Student ID: 3 with Student ID: 4
+Student ID: 4 CANNOT spread to Student ID: 3
+Student ID: 3 CANNOT spread to Student ID: 4
+Pairing Student ID: 6 with Student ID: 9
+Student ID: 6 can spread to Student ID: 9!
+Pairing Student ID: 5 with Student ID: 0
+Student ID: 7, Has heard rumor: False, Number of times heard rumor: 0, Likelihood of spreading rumor: 0.5, Students spread rumor to: []
+Student ID: 8, Has heard rumor: True, Number of times heard rumor: 2, Likelihood of spreading rumor: 0.5, Students spread rumor to: []
+Student ID: 2, Has heard rumor: False, Number of times heard rumor: 0, Likelihood of spreading rumor: 0.5, Students spread rumor to: []
+Student ID: 1, Has heard rumor: False, Number of times heard rumor: 0, Likelihood of spreading rumor: 0.5, Students spread rumor to: []
+Student ID: 3, Has heard rumor: True, Number of times heard rumor: 0, Likelihood of spreading rumor: 0.5, Students spread rumor to: [4, 8]
+Student ID: 4, Has heard rumor: True, Number of times heard rumor: 1, Likelihood of spreading rumor: 0.5, Students spread rumor to: [8, 6]
+Student ID: 6, Has heard rumor: True, Number of times heard rumor: 1, Likelihood of spreading rumor: 0.5, Students spread rumor to: []
+Student ID: 9, Has heard rumor: False, Number of times heard rumor: 0, Likelihood of spreading rumor: 0.5, Students spread rumor to: []
+Student ID: 5, Has heard rumor: False, Number of times heard rumor: 0, Likelihood of spreading rumor: 0.5, Students spread rumor to: []
+Student ID: 0, Has heard rumor: False, Number of times heard rumor: 0, Likelihood of spreading rumor: 0.5, Students spread rumor to: []

@@ -22,11 +22,11 @@ import random # Using randint and shuffle
 # + If a student has shared the rumor once with a student already and meets up with them again,
 #   then that student cannot share the rumor again and it won't count toward the 2 times
 #   that the receiving student has heard a rumor.
-# + TODO: If both students in a pair have heard the rumor and haven't previously spread the rumor to the other,
+# + If both students in a pair have heard the rumor and haven't previously spread the rumor to the other,
 #   they each still have the possibility to tell the other student about the rumor (if the random likelihood is true),
 #   and a randomly chosen student in the pair is chosen to first tell the rumor. If the first student's attempt is
 #   not successful, then the second student can try.
-# + TODO: Students can keep track of who has told them the rumor so they can't "spread" the rumor to someone
+# + Students can keep track of who has told them the rumor so they can't "spread" the rumor to someone
 #   who has already told them the rumor.
 
 # The Student class keeps track of if the student has heard the rumor, the number of times
@@ -91,10 +91,13 @@ class Student:
         return self.students_spread_rumor_to
 
     # Determines if this student is capable of spreading the rumor
-    # and makes sure that student hasn't already told a student
+    # and makes sure that student hasn't already told that student
+    # and that the student isn't telling a student that told them
     def can_spread_rumor(self, student_id_to_tell_rumor_to, other_students_spread_rumor_to):
         if self.has_heard_rumor == True:
-            if self.times_heard_rumor < 2:
+            if self.times_heard_rumor < 2:  # Magic number 2 here represents the prompt stating that 
+                                            # "After a person has heard the rumor 2 times, he/she will 
+                                            # assume everyone has heard the rumor and will no longer try to spread it further"
                 if student_id_to_tell_rumor_to not in self.students_spread_rumor_to:
                     if self.get_id() not in other_students_spread_rumor_to:
                         print(self.__repr__() + " can spread to Student ID: " + str(student_id_to_tell_rumor_to) + "!")
@@ -148,7 +151,7 @@ def run_rumor_simulation(likelihood_of_spreading_rumor=0.5, number_of_students=1
                                 print("Spread from " + repr(students[i]) + " to " + repr(students[i + 1]))
 
                 # Second case: First student in pair hasn't heard rumor but second student has
-                if not students[i].has_heard_rumor and students[i + 1].has_heard_rumor:
+                elif not students[i].has_heard_rumor and students[i + 1].has_heard_rumor:
                    # Make sure that this student can logically spread rumor to other student
                     if students[i + 1].can_spread_rumor(students[i].get_id(), students[i].get_students_spread_to()):
                         if random.random() < likelihood_of_spreading_rumor: 
@@ -157,7 +160,7 @@ def run_rumor_simulation(likelihood_of_spreading_rumor=0.5, number_of_students=1
                                 print("Spread from " + repr(students[i + 1]) + " to " + repr(students[i]))
 
                 # Third case: Both students have heard rumor already. this is the tricky one
-                if students[i].has_heard_rumor and students[i + 1].has_heard_rumor:
+                elif students[i].has_heard_rumor and students[i + 1].has_heard_rumor:
                     # Check if both students have heard rumor based on assumption that even if both students
                     # know the rumor already, they still have a chance of telling the rumor to the other
                     # student in the pair again.
