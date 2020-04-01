@@ -22,6 +22,12 @@ import random # Using randint and shuffle
 # + If a student has shared the rumor once with a student already and meets up with them again,
 #   then that student cannot share the rumor again and it won't count toward the 2 times
 #   that the receiving student has heard a rumor.
+# + TODO: If both students in a pair have heard the rumor and haven't previously spread the rumor to the other,
+#   they each still have the possibility to tell the other student about the rumor (if the random likelihood is true),
+#   and a randomly chosen student in the pair is chosen to first tell the rumor. If the first student's attempt is
+#   not successful, then the second student can try.
+# + TODO: Students can keep track of who has told them the rumor so they can't "spread" the rumor to someone
+#   who has already told them the rumor.
 
 # The Student class keeps track of if the student has heard the rumor, the number of times
 # that the student has heard the rumor, their unique student ID, the likelihood of each student
@@ -50,6 +56,9 @@ class Student:
         # person twice and increase another student's times_heard_rumor twice
         self.students_spread_rumor_to = []
 
+        # TODO: Keep track of who has told students the rumor also so students can't "spread" the rumor to someone who has already told them the rumor
+
+
     def __repr__(self):
         return "Student ID: " + str(self.student_id)
 
@@ -75,6 +84,24 @@ class Student:
 
     def get_times_heard_rumor(self):
         return self.times_heard_rumor
+
+    # Returns the list of students that this class has spread to. this
+    # is done to ensure that a student that has heard of a rumor from someone cannot tell them the same rumor again
+    def get_students_spread_to(self):
+        return self.students_spread_rumor_to
+
+    # Determines if this student is capable of spreading the rumor
+    # and makes sure that student hasn't already told a student
+    def can_spread_rumor(self, student_id_to_tell_rumor_to, other_students_spread_rumor_to):
+        if self.has_heard_rumor == True:
+            if self.times_heard_rumor < 2:
+                if student_id_to_tell_rumor_to not in self.students_spread_rumor_to:
+                    if self.get_id() not in other_students_spread_rumor_to:
+                        print(self.__repr__() + " can spread to Student ID: " + str(student_id_to_tell_rumor_to) + "!")
+                        return True
+
+        print(self.__repr__() + " CANNOT spread to Student ID: " + str(student_id_to_tell_rumor_to))
+        return False
 
 def run_rumor_simulation(likelihood_of_spreading_rumor=0.5, number_of_students=10, minutes_to_run=10):
     if number_of_students % 2 != 0:
@@ -111,12 +138,65 @@ def run_rumor_simulation(likelihood_of_spreading_rumor=0.5, number_of_students=1
                     students[i].increment_times_heard_rumor()
                     print("First spread from initial " + repr(students[i + 1]) + " to " + repr(students[i]))
             else:
-                # Check if anyone in pair has heard rumor. If not, then skip pair
-                if students[i].has_heard_rumor or students[i + 1].has_heard_rumor:
-                    # Check if randomly generated float is less than likelihood of spreading rumor. If so, spread rumor
-                    # If true, spread rumor to student who has not heard rumor
-                    if random.random() < likelihood_of_spreading_rumor: 
-                        
+                # First case: First student in pair has heard rumor and second hasn't
+                if students[i].has_heard_rumor and not students[i + 1].has_heard_rumor:
+                    # Make sure that this student can logically spread rumor to other student
+                    if students[i].can_spread_rumor(students[i + 1].get_id(), students[i + 1].get_students_spread_to()):
+                        if random.random() < likelihood_of_spreading_rumor: 
+                                students[i].append_students_spread_rumor_to(students[i + 1].get_id())
+                                students[i + 1].increment_times_heard_rumor()
+                                print("Spread from " + repr(students[i]) + " to " + repr(students[i + 1]))
+
+                # Second case: First student in pair hasn't heard rumor but second student has
+                if not students[i].has_heard_rumor and students[i + 1].has_heard_rumor:
+                   # Make sure that this student can logically spread rumor to other student
+                    if students[i + 1].can_spread_rumor(students[i].get_id(), students[i].get_students_spread_to()):
+                        if random.random() < likelihood_of_spreading_rumor: 
+                                students[i + 1].append_students_spread_rumor_to(students[i].get_id())
+                                students[i].increment_times_heard_rumor()
+                                print("Spread from " + repr(students[i + 1]) + " to " + repr(students[i]))
+
+                # Third case: Both students have heard rumor already. this is the tricky one
+                if students[i].has_heard_rumor and students[i + 1].has_heard_rumor:
+                    # Check if both students have heard rumor based on assumption that even if both students
+                    # know the rumor already, they still have a chance of telling the rumor to the other
+                    # student in the pair again.
+                    # Caveat: If one student successfully tells other student rumor first, then
+                    #         the student who just got told the rumor can't retell the rumor to the same person
+
+                    # Randomly see who gets to try to spread the rumor first
+                    curr_pair_students = [i, i + 1]
+                    index_of_first_student_in_pair_to_attempt = random.choice([0, 1])
+                    first_student_to_attempt = curr_pair_students[index_of_first_student_in_pair_to_attempt]
+                    second_student_to_attempt = ""
+                    if index_of_first_student_in_pair_to_attempt == 0:
+                        second_student_to_attempt = curr_pair_students[1]
+                    else:
+                        second_student_to_attempt = curr_pair_students[0]
+
+                    first_student_successfully_spread_rumor = False
+
+                    # Make sure that this student can logically spread rumor to other student
+                    if students[first_student_to_attempt].can_spread_rumor(students[second_student_to_attempt].get_id(), students[second_student_to_attempt].get_students_spread_to()):
+                        # Check if randomly generated float is less than likelihood of spreading rumor. If so, spread rumor
+                        # If true, spread rumor to student who has not heard rumor
+                        if random.random() < likelihood_of_spreading_rumor: 
+                            first_student_successfully_spread_rumor = True
+                            students[first_student_to_attempt].append_students_spread_rumor_to(students[second_student_to_attempt].get_id())
+                            students[second_student_to_attempt].increment_times_heard_rumor()
+                            print("Spread from " + repr(students[first_student_to_attempt]) + " to " + repr(students[second_student_to_attempt]))
+
+                    # If first student's attempt at spreading rumor failed, then second student tries to spread rumor
+                    if not first_student_successfully_spread_rumor:
+                        # Make sure that this student can logically spread rumor to other student
+                        if students[second_student_to_attempt].can_spread_rumor(students[first_student_to_attempt].get_id(), students[first_student_to_attempt].get_students_spread_to()):
+                            # Check if randomly generated float is less than likelihood of spreading rumor. If so, spread rumor
+                            # If true, spread rumor to student who has not heard rumor
+                            if random.random() < likelihood_of_spreading_rumor: 
+                                first_student_successfully_spread_rumor = True
+                                students[second_student_to_attempt].append_students_spread_rumor_to(students[first_student_to_attempt].get_id())
+                                students[first_student_to_attempt].increment_times_heard_rumor()
+                                print("Spread from " + repr(students[second_student_to_attempt]) + " to " + repr(students[first_student_to_attempt]))
 
 
 
@@ -125,4 +205,4 @@ def run_rumor_simulation(likelihood_of_spreading_rumor=0.5, number_of_students=1
 
 
 
-run_rumor_simulation(likelihood_of_spreading_rumor=0.5, number_of_students=10, minutes_to_run=10)
+run_rumor_simulation(likelihood_of_spreading_rumor=0.5, number_of_students=10, minutes_to_run=5)
