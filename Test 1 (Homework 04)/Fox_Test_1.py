@@ -48,8 +48,9 @@ class Student:
         self.has_heard_rumor = False
 
         # The number of times that the student has heard the rumor.
-        # If this is 0, then the student has not heard the rumor.
-        # If this is 2, then the student stops spreading the rumor
+        # If this value is 0, then the student has not heard the rumor.
+        # If this value is 1, then the student has heard the rumor once.
+        # If this value is 2, then the student has heard the rumor twice and stops spreading the rumor
         self.times_heard_rumor = times_heard_rumor
 
         # The chance of spreading a rumor to another student
@@ -90,14 +91,14 @@ class Student:
     def get_times_heard_rumor(self):
         return self.times_heard_rumor
 
-    # Returns the list of students that this class has spread to. this
-    # is done to ensure that a student that has heard of a rumor from someone cannot tell them the same rumor again
+    # Returns the list of students that this class has spread to. This
+    # is used to ensure that a student that has heard of a rumor from someone cannot tell them the same rumor again
     def get_students_spread_to(self):
         return self.students_spread_rumor_to
 
     # Determines if this student is capable of spreading the rumor
-    # and makes sure that student hasn't already told that student
-    # and that the student isn't telling a student that told them
+    # and makes sure that this student hasn't already told the other the rumor
+    # and that the other student likewise hasn't told this student the rumor
     def can_spread_rumor(self, student_id_to_tell_rumor_to, other_students_spread_rumor_to):
         if self.has_heard_rumor == True:
             if self.times_heard_rumor < 2:  # Magic number 2 here represents the prompt stating that 
@@ -164,10 +165,10 @@ def run_rumor_simulation(likelihood_of_spreading_rumor=0.5, number_of_students=1
                                 students[i].increment_times_heard_rumor()
                                 # print("Spread from " + repr(students[i + 1]) + " to " + repr(students[i]))
 
-                # Third case: Both students have heard rumor already. this is the tricky one
+                # Third case: Both students have heard rumor already. This is the tricky one
                 elif students[i].has_heard_rumor and students[i + 1].has_heard_rumor:
                     # Check if both students have heard rumor based on assumption that even if both students
-                    # know the rumor already, they still have a chance of telling the rumor to the other
+                    # know the rumor already, they still have a random and equal chance of telling the rumor to the other
                     # student in the pair again.
                     # Caveat: If one student successfully tells other student rumor first, then
                     #         the student who just got told the rumor can't retell the rumor to the same person
@@ -214,15 +215,41 @@ def run_rumor_simulation(likelihood_of_spreading_rumor=0.5, number_of_students=1
         if s.get_has_heard_rumor():
             num_students_heard_rumor = num_students_heard_rumor + 1
 
-    print("Number of the " + str(number_of_students) + " students who have heard the rumor is " + str(num_students_heard_rumor) + " after " + str(minutes_to_run) + " minutes.")
+    # print("Number of the " + str(number_of_students) + " students who have heard the rumor is " + str(num_students_heard_rumor) + " after " + str(minutes_to_run) + " minutes.")
     return num_students_heard_rumor
     
 N = 1000
-minutes = 10
-
+minutes = 40
+iterations_to_run = 1000
 num_students_heard_rumor = []
-for i in range(100):
-    num_students_heard_rumor.append(run_rumor_simulation(likelihood_of_spreading_rumor=0.5, number_of_students=N, minutes_to_run=minutes))
+time_and_percentage = []
+for minute in range(40):
+    num_students_heard_rumor = []
+    for i in range(iterations_to_run):
+        if i % 100 == 0:
+            print("On iteration " + str(i))
+        num_students_heard_rumor.append(run_rumor_simulation(likelihood_of_spreading_rumor=0.5, number_of_students=N, minutes_to_run=minute))
+    print("On minute " + str(minute))
+    time_and_percentage.append(
+        [minute, 100 * (sum(num_students_heard_rumor)/len(num_students_heard_rumor) / N)])
 
-print("num_students_heard_rumor: " + str(num_students_heard_rumor))
-print("avg num students who have heard rumor " + str(sum(num_students_heard_rumor)/len(num_students_heard_rumor)))
+print("time_and_percentage == " + str(time_and_percentage))
+print("After " + str(iterations_to_run) + " iterations over " + str(minutes) + " minutes for " + str(N) + " students:")
+# print("Num_students_heard_rumor: " + str(num_students_heard_rumor))
+print("Average number students who have heard rumor " + str(sum(num_students_heard_rumor)/len(num_students_heard_rumor)))
+print("Average percentage of students who have heard rumor == " +
+      str(sum(num_students_heard_rumor)/len(num_students_heard_rumor) / N) + " (" + str(100 * (sum(num_students_heard_rumor)/len(num_students_heard_rumor) / N)) + "%)")
+
+# # Graphing Time and :
+# 10 iterations
+# time_and_percentage = [[0, 0.01], [1, 0.02], [2, 0.03], [3, 0.049], [4, 0.059000000000000004], [5, 0.079], [6, 0.16699999999999998], [7, 0.255], [8, 0.303], [9, 0.551], [10, 0.75], [11, 1.111], [12, 2.006], [13, 2.5780000000000003], [14, 3.771], [15, 5.806], [16, 7.994], [17, 14.094000000000001], [18, 14.482999999999999], [19, 21.349], [20, 30.377], [
+#     21, 47.183], [22, 49.498999999999995], [23, 53.071], [24, 66.99199999999999], [25, 73.53], [26, 79.62199999999999], [27, 84.38799999999999], [28, 87.156], [29, 90.569], [30, 91.838], [31, 92.74700000000001], [32, 94.46700000000001], [33, 94.744], [34, 95.785], [35, 96.004], [36, 96.431], [37, 96.875], [38, 97.075], [39, 97.34799999999998]]
+# 100 iterations
+# minutes = [x for x, y in time_and_percentage]
+# percentages = [y for x, y in time_and_percentage]
+# import matplotlib.pyplot as plt
+# plt.plot(minutes, percentages)
+# plt.ylabel('Average Percentage of Students Whom have Heard Rumor')
+# plt.xlabel('Minute')
+# plt.title('Minutes vs Average Percentage of Students Having Heard a Rumor')
+# plt.show()
