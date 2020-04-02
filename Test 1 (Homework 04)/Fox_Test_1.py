@@ -28,6 +28,9 @@ import random # Using randint and shuffle
 #   they each still have the possibility to tell the other student about the rumor (if the random likelihood is true),
 #   and a randomly chosen student in the pair is chosen to first tell the rumor. If the first student's attempt is
 #   not successful, then the second student can try to spread the rumor to the first.
+# + The first student to spread the rumor is considered to have heard the rumor zero times at the party even though 
+#   they know the rumor. While they technically may have “heard” it from their own brain, this is not counted in their 
+#   personal count of the number of times that they have heard the rumor.
 
 
 # The Student class keeps track of if the student has heard the rumor, the number of times
@@ -70,6 +73,9 @@ class Student:
     def set_heard_rumor(self, has_heard_rumor):
         self.has_heard_rumor = has_heard_rumor
 
+    def get_has_heard_rumor(self):
+        return self.has_heard_rumor
+
     def get_id(self):
         return self.student_id
 
@@ -99,13 +105,13 @@ class Student:
                                             # assume everyone has heard the rumor and will no longer try to spread it further"
                 if student_id_to_tell_rumor_to not in self.students_spread_rumor_to:
                     if self.get_id() not in other_students_spread_rumor_to:
-                        print(self.__repr__() + " can spread to Student ID: " + str(student_id_to_tell_rumor_to) + "!")
+                        # print(self.__repr__() + " can spread to Student ID: " + str(student_id_to_tell_rumor_to) + "!")
                         return True
 
-        print(self.__repr__() + " CANNOT spread to Student ID: " + str(student_id_to_tell_rumor_to))
+        # print(self.__repr__() + " CANNOT spread to Student ID: " + str(student_id_to_tell_rumor_to))
         return False
 
-def run_rumor_simulation(likelihood_of_spreading_rumor=0.5, number_of_students=10, minutes_to_run=10):
+def run_rumor_simulation(likelihood_of_spreading_rumor=0.5, number_of_students=100, minutes_to_run=10):
     if number_of_students % 2 != 0:
         print("Error: Input parameter number_of_students must be even. " + str(number_of_students) + " is not an even number.")
         return
@@ -123,22 +129,22 @@ def run_rumor_simulation(likelihood_of_spreading_rumor=0.5, number_of_students=1
     for minute in range(minutes_to_run):
         # Get random pairs of each student by randomly shuffling everybody and then pairing them into twos
         random.shuffle(students)
-        print("students == " + str(students))
+        # print("students == " + str(students))
         # Iterate over every pair and evaluate results
         for i in range(0, number_of_students, 2):
-            print("Pairing " + repr(students[i]) + " with " + repr(students[i + 1]))
+            # print("Pairing " + repr(students[i]) + " with " + repr(students[i + 1]))
             # Since initial student initially spreads rumor to first conversion partner at minute 0, make sure this happens here
             if minute == 0 and (students[i].get_id() == student_to_start_rumor or students[i + 1].get_id() == student_to_start_rumor):
                 # Check first case where current even number student in shuffled students list is initial rumor spreader
                 if students[i].get_id() == student_to_start_rumor:
                     students[i].append_students_spread_rumor_to(students[i + 1].get_id())
                     students[i + 1].increment_times_heard_rumor()
-                    print("First spread from initial " + repr(students[i]) + " to " + repr(students[i + 1]))
+                    # print("First spread from initial " + repr(students[i]) + " to " + repr(students[i + 1]))
                 # Else, it's second case where current odd number student in shuffled students list is initial rumor spreader
                 else:
                     students[i + 1].append_students_spread_rumor_to(students[i].get_id())
                     students[i].increment_times_heard_rumor()
-                    print("First spread from initial " + repr(students[i + 1]) + " to " + repr(students[i]))
+                    # print("First spread from initial " + repr(students[i + 1]) + " to " + repr(students[i]))
             else:
                 # First case: First student in pair has heard rumor and second hasn't
                 if students[i].has_heard_rumor and not students[i + 1].has_heard_rumor:
@@ -147,7 +153,7 @@ def run_rumor_simulation(likelihood_of_spreading_rumor=0.5, number_of_students=1
                         if random.random() < likelihood_of_spreading_rumor: 
                                 students[i].append_students_spread_rumor_to(students[i + 1].get_id())
                                 students[i + 1].increment_times_heard_rumor()
-                                print("Spread from " + repr(students[i]) + " to " + repr(students[i + 1]))
+                                # print("Spread from " + repr(students[i]) + " to " + repr(students[i + 1]))
 
                 # Second case: First student in pair hasn't heard rumor but second student has
                 elif not students[i].has_heard_rumor and students[i + 1].has_heard_rumor:
@@ -156,7 +162,7 @@ def run_rumor_simulation(likelihood_of_spreading_rumor=0.5, number_of_students=1
                         if random.random() < likelihood_of_spreading_rumor: 
                                 students[i + 1].append_students_spread_rumor_to(students[i].get_id())
                                 students[i].increment_times_heard_rumor()
-                                print("Spread from " + repr(students[i + 1]) + " to " + repr(students[i]))
+                                # print("Spread from " + repr(students[i + 1]) + " to " + repr(students[i]))
 
                 # Third case: Both students have heard rumor already. this is the tricky one
                 elif students[i].has_heard_rumor and students[i + 1].has_heard_rumor:
@@ -186,7 +192,7 @@ def run_rumor_simulation(likelihood_of_spreading_rumor=0.5, number_of_students=1
                             first_student_successfully_spread_rumor = True
                             students[first_student_to_attempt].append_students_spread_rumor_to(students[second_student_to_attempt].get_id())
                             students[second_student_to_attempt].increment_times_heard_rumor()
-                            print("Spread from " + repr(students[first_student_to_attempt]) + " to " + repr(students[second_student_to_attempt]))
+                            # print("Spread from " + repr(students[first_student_to_attempt]) + " to " + repr(students[second_student_to_attempt]))
 
                     # If first student's attempt at spreading rumor failed, then second student tries to spread rumor
                     if not first_student_successfully_spread_rumor:
@@ -198,13 +204,25 @@ def run_rumor_simulation(likelihood_of_spreading_rumor=0.5, number_of_students=1
                                 first_student_successfully_spread_rumor = True
                                 students[second_student_to_attempt].append_students_spread_rumor_to(students[first_student_to_attempt].get_id())
                                 students[first_student_to_attempt].increment_times_heard_rumor()
-                                print("Spread from " + repr(students[second_student_to_attempt]) + " to " + repr(students[first_student_to_attempt]))
+                                # print("Spread from " + repr(students[second_student_to_attempt]) + " to " + repr(students[first_student_to_attempt]))
 
 
-
+    # Print out final results
+    num_students_heard_rumor = 0
     for s in students:
-        print(s)
+        # print(s)
+        if s.get_has_heard_rumor():
+            num_students_heard_rumor = num_students_heard_rumor + 1
 
+    print("Number of the " + str(number_of_students) + " students who have heard the rumor is " + str(num_students_heard_rumor) + " after " + str(minutes_to_run) + " minutes.")
+    return num_students_heard_rumor
+    
+N = 1000
+minutes = 10
 
+num_students_heard_rumor = []
+for i in range(100):
+    num_students_heard_rumor.append(run_rumor_simulation(likelihood_of_spreading_rumor=0.5, number_of_students=N, minutes_to_run=minutes))
 
-run_rumor_simulation(likelihood_of_spreading_rumor=0.5, number_of_students=10, minutes_to_run=5)
+print("num_students_heard_rumor: " + str(num_students_heard_rumor))
+print("avg num students who have heard rumor " + str(sum(num_students_heard_rumor)/len(num_students_heard_rumor)))
