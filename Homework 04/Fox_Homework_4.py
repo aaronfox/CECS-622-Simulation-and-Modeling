@@ -105,20 +105,184 @@ def part_1_b():
     # do not follow the same distribution and are statistically different.
 
 ### Part 2: Queue Analysis ###
-def part_2():
+## Parts a and b ##
+def part_2__a_and_b():
     arrival_times = [12, 31, 63, 95, 99, 154, 198, 221, 304, 346, 411, 455, 537]
     service_times = [40, 32, 55, 48, 18, 50, 47, 18, 28, 54, 40, 72, 12]
+    # arrival_times = [2, 4, 7]
+    # service_times = [3, 1, 4]
+    # arrival_times = [0, 2, 3]
+    # service_times = [2, 1, 3]
+    # The departure times are the time in which the customer is completely serviced
     system_departure_times = []
     # The response time is the total amount of time a customer spends in both the queue and in service.
     system_response_times = []
     
     time = 0
+    customers_serviced = 0
+    customers_arrived = 0
+    queue = []
+    wasted_minutes = 0
+    customer_just_arrived = False  # customer_just_arrived ensure that a customer isn't serviced in the same minute they arrive
+    while customers_serviced != len(arrival_times):
+        # Check if new arrival of customer should be added to queue
+        # print("Time == " + str(time))
+        if customers_arrived != len(arrival_times) and time == arrival_times[customers_arrived]:
+            # print("Appending to queue at t = " + str(time))
+            queue.append(service_times[customers_arrived])
+            customer_just_arrived = True
+            customers_arrived = customers_arrived + 1
+        elif customer_just_arrived:
+            customer_just_arrived = False
 
+        if len(queue) >= 1 and not (len(queue) == 1 and customer_just_arrived):
+            queue[0] = queue[0] - 1
+
+            # Check if first customer in queue is finished servicing
+            if queue[0] == 0:
+                # print("Popping customer from queue at t = " + str(time))
+                # Delete fully serviced customer from queue since it's done being serviced
+                del queue[0]
+                # Add data of customer to respective system response and departure times
+                system_departure_times.append(time)
+                system_response_times.append(time - arrival_times[customers_serviced])
+                customers_serviced = customers_serviced + 1
+        elif not (len(queue) == 1 and customer_just_arrived):
+            print("wasted minute at t = " + str(time))
+            wasted_minutes = wasted_minutes + 1
+        time = time + 1
+
+
+    print("System Response Times: " + str(system_response_times))
+    print("System Departure Times: " + str(system_departure_times))
+    print("Wasted minutes: " + str(wasted_minutes))
+    
+    # Last system departure time is the overall minutes used
+    total_time = system_departure_times[-1]
+    print("Percent Server Utilization: " + str((total_time - wasted_minutes) / total_time * 100) + "%")
+
+## Part c ##
+def part_2_c():
+    arrival_times = [12, 31, 63, 95, 99, 154,
+                     198, 221, 304, 346, 411, 455, 537]
+    service_times = [40, 32, 55, 48, 18, 50, 47, 18, 28, 54, 40, 72, 12]
+    service_times = [[0, 40], [1, 32], [2, 55], [3, 48], [4, 18], [5, 50], [6, 47], [7, 18], [8, 28], [9, 54], [10, 40], [11, 72], [12, 12]]
+    # arrival_times = [2, 4, 7]
+    # service_times = [3, 1, 4]
+    # arrival_times = [0, 2, 3]
+    # service_times = [2, 1, 3]
+    # arrival_times = [2, 3, 5, 6]
+    # service_times = [[0, 3], [1, 5], [2, 5], [3, 2]]
+    # The departure times are the time in which the customer is completely serviced
+    system_departure_times = [0] * len(arrival_times)
+    # The response time is the total amount of time a customer spends in both the queue and in service.
+    system_response_times = [0] * len(arrival_times)
+
+    time = 0
+    customers_serviced = 0
+    customers_arrived = 0
+    queue = []
+    wasted_minutes = 0
+    # customer_just_arrived ensure that a customer isn't serviced in the same minute they arrive
+    customer_just_arrived = False
+    while customers_serviced != len(arrival_times):
+        # Check if new arrival of customer should be added to queue
+        if customers_arrived != len(arrival_times) and time == arrival_times[customers_arrived]:
+            queue.append(service_times[customers_arrived])
+            customer_just_arrived = True
+            customers_arrived = customers_arrived + 1
+        elif customer_just_arrived:
+            customer_just_arrived = False
+
+        # Case 1: Nobody is in queue
+        if len(queue) == 0:
+            wasted_minutes = wasted_minutes + 2 # + 2 since both servers are wasting minutes
+
+        # Case 2: length of queue is 1
+        if len(queue) == 1 and not customer_just_arrived:
+            queue[0][1] = queue[0][1] - 1
+            # If only one customer, then one server is not being used
+            wasted_minutes = wasted_minutes + 1
+        elif len(queue) == 1 and customer_just_arrived:  # Otherwise, customer just arrived
+            wasted_minutes = wasted_minutes + 1
+
+        # Case 3: Queue length = 2 (No wasted minutes when 2+ in queue)
+        if len(queue) == 2:
+            # if customer just arrived, only count first person in queue
+            if customer_just_arrived:
+                queue[0][1] = queue[0][1] - 1
+            else:
+                queue[0][1] = queue[0][1] - 1
+                queue[1][1] = queue[1][1] - 1
+
+        # Case 4: Queue length > 2 (no wasted minutes and don't need to check for customer just arriving)
+        if len(queue) > 2:
+            queue[0][1] = queue[0][1] - 1
+            queue[1][1] = queue[1][1] - 1
+
+        if len(queue) == 1:
+            # Check if queue spot 0 is serviced
+            if queue[0][1] == 0:
+                print("Popping customer from queue at t = " + str(time))
+                # Delete fully serviced customer from queue since it's done being serviced
+                # Add data of customer to respective system response and departure times
+                system_departure_times[queue[0][0]] = time
+                system_response_times[queue[0][0]] = time - arrival_times[queue[0][0]]
+                customers_serviced = customers_serviced + 1
+                del queue[0]
+        elif len(queue) >= 2:
+            # Check if either queue spot 0 or 1 are serviced
+            if queue[0][1] == 0 and queue[1][1] == 0:
+                print("Popping customer from queue at t = " + str(time))
+                # Delete fully serviced customer from queue since it's done being serviced
+                # Add data of customer to respective system response and departure times
+                system_departure_times[queue[0][0]] = time
+                system_response_times[queue[0][0]] = time - arrival_times[queue[0][0]]
+                customers_serviced = customers_serviced + 1
+                del queue[0]
+
+                ## Repeat for next finished item in queue
+                print("Popping another customer from queue at t = " + str(time))
+                # Add data of customer to respective system response and departure times
+                system_departure_times[queue[0][0]] = time
+                system_response_times[queue[0][0]] = time - arrival_times[queue[0][0]]
+                customers_serviced = customers_serviced + 1
+                del queue[0]
+            elif queue[0][1] == 0 and queue[1][1] != 0:
+                print("Popping customer from queue at t = " + str(time))
+                # Delete fully serviced customer from queue since it's done being serviced
+                # Add data of customer to respective system response and departure times
+                system_departure_times[queue[0][0]] = time
+                system_response_times[queue[0][0]] = time - arrival_times[queue[0][0]]
+                customers_serviced = customers_serviced + 1
+                del queue[0]
+
+            elif queue[0][1] != 0 and queue[1][1] == 0:
+                print("Popping customer from queue at t = " + str(time))
+                # Delete fully serviced customer from queue since it's done being serviced
+                # Add data of customer to respective system response and departure times
+                system_departure_times[queue[1][0]] = time
+                system_response_times[queue[1][0]] = time - arrival_times[queue[1][0]]
+                customers_serviced = customers_serviced + 1
+                del queue[1]
+
+        time = time + 1
+
+
+    print("System Response Times: " + str(system_response_times))
+    print("System Departure Times: " + str(system_departure_times))
+    print("Wasted minutes: " + str(wasted_minutes))
+
+    # Last system departure time is the overall minutes used
+    total_time = max(system_departure_times) * 2
+    print("Percent Server Utilization: " + str((total_time - wasted_minutes) / total_time * 100) + "%")
 
 if __name__ == "__main__":
     # Uncomment for Part 1a
     # part_1_a()
     # Uncomment for Part 1b
     # part_1_b()
-    # Uncomment for Part 2
-    part_2()
+    # Uncomment for Part 2a and 2b
+    # part_2__a_and_b()
+    # Uncomment for Part 2c
+    part_2_c()
