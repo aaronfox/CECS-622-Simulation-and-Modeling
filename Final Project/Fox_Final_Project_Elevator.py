@@ -33,6 +33,9 @@ class Person:
         self.departure_time = departure_time
         self.wait_time = self.departure_time - self.arrival_time
 
+    def get_floor(self):
+        return self.floor_to_go_to
+
 def run_elevator_simulation(mean_interarrival_time):
     # Generate times for people to arrive at elevator until time reaches 61 (which is 9:00)
     times_to_arrive = []
@@ -64,19 +67,138 @@ def run_elevator_simulation(mean_interarrival_time):
     # Queue for elevator
     elevator_occupants = []
     queue = []
-    # Run for loop for hours 08:00-09:00 (0 = 08:00, ...,59 = 08:59, 60 = 9:00, etc.)
-    for time in times_to_arrive:
-        # If time below 60, can still add to queue
-        if time < 60:
-            # If elevator full, append to queue
-            if len(elevator_occupants) >= 12:
-                queue.append(Person(time))
+    elevator_floor = 1 # Ground floor of G == 1 here
+    i = 0
+    current_time = 0
+    next_time = times_to_arrive[i]
+    i = i + 1
+    # Run loop to iterate over needed hours 08:00-09:00+ (0 = 08:00, ..., 59 = 08:59, 60 = 9:00, etc.)
+    # Continue running loop until all people have joined, the queue is empty, and all elevator_occupants have departed the lift
+    while i < len(times_to_arrive) - 1 or len(queue) != 0 or len(elevator_occupants) != 0:
+        # TODO: use the variable has_time_moved_forward to check and make sure that time has moved forward. If not, increment by an amount
+        has_time_moved_forward = False
+        print("Length of queue == " + str(len(queue)))
+        print("Length of elevator_occupants == " + str(len(elevator_occupants)))
+        print("Current Time: " + str(current_time))
+
+        # Always start on ground floor (floor 0)
+        elevator_floor = 1
+
+        # Only add people to queue/elevator if their time is less than or equal to the current time
+        while i < len(times_to_arrive) - 1:
+            # If time below 60, can still add to queue
+            if next_time <= current_time:
+
+                # If elevator full, append to queue
+                if len(elevator_occupants) >= 12:
+                    queue.append(Person(next_time))
+                elif elevator_floor == 1:
+                    # Else, append to elevator queue
+                    elevator_occupants.append(Person(next_time))
+                else:
+                    # elevator is not full, but it is not on ground (shouldn't happen)
+                    queue.append(Person(next_time))
+                
+                # Get next time if in index
+                i = i + 1
+                next_time = times_to_arrive[i]
             else:
-                # Else, append to elevator queue
-                elevator_occupants.append(Person(time))
-        else:
-            #don't add to queue
-            pass
+                # Otherwise next time hasn't come yet so break out of while loop
+                break
+
+        # If elevator on ground floor (floor 1) which it should always be to start, then go up
+        if elevator_floor == 1:
+            # Append necessary amount of persons from queue since on ground floor
+            if len(elevator_occupants) < 12:
+                # Add persons from queue to elevator
+                while len(elevator_occupants) < 12 and len(queue) >= 1:
+                    print("adding from queue to elevator")
+                    person_to_add = queue[0]
+                    elevator_occupants.append(person_to_add)
+                    del queue[0]
+                    print("test: " + str(person_to_add.get_floor()))
+
+            # Check if any occupant is going to second floor
+            elevator_floor = 2
+            someone_got_off_2nd = False
+            for occupant in elevator_occupants:
+                if occupant.get_floor() == 2:
+                    # TODO: Get passengers off here and add data to add
+                    print("going to second")
+                    someone_got_off_2nd = True
+                    elevator_occupants.remove(occupant)
+            
+            if someone_got_off_2nd:
+                has_time_moved_forward = True
+                # Only option is to come from ground floor
+                # Going from ground floor to second floor takes 1 minute
+                current_time = current_time + 1.0
+                # Opening elevator door takes 0.5 minutes
+                current_time = current_time + 0.5
+
+            # Check if any occupant is going to third floor
+            elevator_floor = 3
+            someone_got_off_3rd = False
+            for occupant in elevator_occupants:
+                if occupant.get_floor() == 3:
+                    # TODO: Get passengers off here and add data to add
+                    print("going to third")
+                    someone_got_off_3rd = True
+                    elevator_occupants.remove(occupant)
+            
+            # See where elevator came from
+            # From second floor
+            if someone_got_off_3rd:
+                has_time_moved_forward = True
+                if someone_got_off_2nd:
+                    # Coming from second floor
+                    # Going from second floor to third floor takes 0.5 minutes
+                    current_time = current_time + 0.5
+                    # Opening elevator door takes 0.5 minutes
+                    current_time = current_time + 0.5
+                else:
+                    # Coming from Ground floor
+                    # Going from ground floor to third floor takes 0.5 minutes
+                    current_time = current_time + 1.5
+                    # Opening elevator door takes 0.5 minutes
+                    current_time = current_time + 0.5
+
+            # Check if any occupant is going to second floor
+            elevator_floor = 4
+            someone_got_off_4th = False
+            for occupant in elevator_occupants:
+                if occupant.get_floor() == 4:
+                    # TODO: Get passengers off here and add data to add
+                    print("going to fourth")
+                    elevator_occupants.remove(occupant)
+                    someone_got_off_4th = True
+
+            if someone_got_off_4th:
+                has_time_moved_forward = True
+                if someone_got_off_3rd:
+                    # Came from third floor
+                    # Going from third floor to fourth floor takes 0.5 minutes
+                    current_time = current_time + 0.5
+                    # Opening elevator door takes 0.5 minutes
+                    current_time = current_time + 0.5
+                elif someone_got_off_2nd:
+                    # Came from 2nd floor
+                    # Going from second floor to fourth floor takes 0.75 minutes
+                    current_time = current_time + 0.75
+                    # Opening elevator door takes 0.5 minutes
+                    current_time = current_time + 0.5
+                else:
+                    # Came from ground floor
+                    # Going from ground floor to fourth floor takes 1.75 minutes
+                    current_time = current_time + 1.75
+                    # Opening elevator door takes 0.5 minutes
+                    current_time = current_time + 0.5
+
+        # TODO: implement this
+        if has_time_moved_forward == False:
+            # print("forcing time forward")
+            # Edit this number by realizing that -ln(0.99) / 6 = 0.001675
+            current_time = current_time + 0.001675
 
 if __name__ == "__main__":
     mean_interarrival_time = 0.1667
