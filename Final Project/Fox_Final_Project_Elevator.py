@@ -6,6 +6,10 @@
 import math # for natural log
 import random # For uniform random selection
 
+# TODO: If there are more than 12 people waiting on the elevator, some people will use the stairs. A
+# person going to the second floor will have a .50 chance of walking. A person going to the third
+# floor will have a .33 chance of walking. A person going to the fourth floor will have a .10 chance
+# of walking
 class Person:
     def __init__(self, arrival_time):
         #
@@ -27,6 +31,18 @@ class Person:
         # Identify each person in order of who got off first
         self.id = 0
 
+        self.time_boarded_elevator = 0
+
+        self.attempted_to_walk = False
+
+        self.walked = False
+
+    def set_walked_true(self):
+        self.walked = True
+
+    def set_attempted_to_walk_true(self):
+        self.attempted_to_walk = True
+
     # Sets the arrival time of the person to the ground floor elevator (either line or no line)
     def set_arrival_time(self, arrival_time):
         self.arrival_time = arrival_time
@@ -36,6 +52,12 @@ class Person:
         self.departure_time = departure_time
         self.wait_time = self.departure_time - self.arrival_time
 
+    def get_time_boarded_elevator(self):
+        return self.time_boarded_elevator
+
+    def set_boarding_time(self, boarding_time):
+        self.time_boarded_elevator = boarding_time
+
     def get_floor(self):
         return self.floor_to_go_to
 
@@ -43,7 +65,7 @@ class Person:
         self.id = id
 
     def __str__(self):
-        return "[Person #" + str(self.id) + ", Arrival Time: " + str(self.arrival_time) + ", Departure Time: " + str(self.departure_time) + ", Wait Time: " + str(self.wait_time) + "]\n"
+        return "[Person #" + str(self.id) + ", Arrival Time: " + str(self.arrival_time) + ", Departure Time: " + str(self.departure_time) + ", Wait Time: " + str(self.wait_time) + ", Time Boarded Lift: " + str(self.time_boarded_elevator) + ", Walker: " + str(self.walked) + "]\n"
 
 
     def __repr__(self):
@@ -87,6 +109,9 @@ def run_elevator_simulation(mean_interarrival_time):
     i = i + 1
     all_persons = []
     id_num = 1
+    has_checked_830 = False
+    has_checked_845 = False
+    has_checked_900 = False
     # Run loop to iterate over needed hours 08:00-09:00+ (0 = 08:00, ..., 59 = 08:59, 60 = 9:00, etc.)
     # Continue running loop until all people have joined, the queue is empty, and all elevator_occupants have departed the lift
     while i < len(times_to_arrive) - 1 or len(queue) != 0 or len(elevator_occupants) != 0:
@@ -99,6 +124,23 @@ def run_elevator_simulation(mean_interarrival_time):
         # Always start on ground floor (floor 0)
         elevator_floor = 1
 
+        # print(current_time)
+        error_tolerance = 2
+        # Get number of people in queue at 8:30, 8:45, and 9:00
+        if not has_checked_830 and (current_time <= 30 + error_tolerance and current_time >= 30 - error_tolerance):
+            has_checked_830 = True
+            print(current_time)
+            number_of_workers_in_line_at_8_30 = len(queue)
+        if not has_checked_845 and (current_time <= 45 + error_tolerance and current_time >= 45 - error_tolerance):
+            has_checked_845 = True
+            print(current_time)
+            number_of_workers_in_line_at_8_45 = len(queue)
+        if not has_checked_900 and (current_time <= 60 + error_tolerance and current_time >= 60 - error_tolerance):
+            has_checked_900 = True
+            print(current_time)
+            number_of_workers_in_line_at_9_00 = len(queue)
+
+
         # Only add people to queue/elevator if their time is less than or equal to the current time
         while i < len(times_to_arrive) - 1:
             # If time below 60, can still add to queue
@@ -109,7 +151,9 @@ def run_elevator_simulation(mean_interarrival_time):
                     queue.append(Person(next_time))
                 elif elevator_floor == 1:
                     # Else, append to elevator queue
-                    elevator_occupants.append(Person(next_time))
+                    next_person = Person(next_time)
+                    next_person.set_boarding_time(current_time)
+                    elevator_occupants.append(next_person)
                 else:
                     # elevator is not full, but it is not on ground (shouldn't happen)
                     queue.append(Person(next_time))
@@ -128,8 +172,39 @@ def run_elevator_simulation(mean_interarrival_time):
                 # Add persons from queue to elevator
                 while len(elevator_occupants) < 12 and len(queue) >= 1:
                     person_to_add = queue[0]
+                    person_to_add.set_boarding_time(current_time)
                     elevator_occupants.append(person_to_add)
                     del queue[0]
+
+            # People still left in queue here may choose to take the stairs. Check.
+            for person in queue:
+                # Make sure a person only contemplates walking once. Otherwise a 50% chance of walking twice 
+                # becomes a 75% chance and so on while a person remains in the queue
+                if person.attempted_to_walk == False:
+                    if person.get_floor() == 2:
+                        if random.random() < 0.5:
+                            number_of_people_walked_to_2nd_floor = number_of_people_walked_to_2nd_floor + 1
+                            person.set_walked_true()
+                            all_persons.append(person)
+                            queue.remove(person)
+                        else:
+                            person.set_attempted_to_walk_true()
+                    elif person.get_floor() == 3:
+                        if random.random() < 0.33:
+                            number_of_people_walked_to_3rd_floor = number_of_people_walked_to_3rd_floor + 1
+                            person.set_walked_true()
+                            all_persons.append(person)
+                            queue.remove(person)
+                        else:
+                            person.set_attempted_to_walk_true()
+                    elif person.get_floor() == 4:
+                        if random.random() < 0.10:
+                            number_of_people_walked_to_4th_floor = number_of_people_walked_to_4th_floor + 1
+                            person.set_walked_true()
+                            all_persons.append(person)
+                            queue.remove(person)
+                        else:
+                            person.set_attempted_to_walk_true()
 
             # Check if any occupant is going to second floor
             elevator_floor = 2
@@ -220,11 +295,28 @@ def run_elevator_simulation(mean_interarrival_time):
             # at the very same time they arrived
             current_time = current_time + 0.000000166667
 
-    print("All Persons: " + str(all_persons))
+
+    # Find last time boarded elevator
+    # print("All Persons: " + str(all_persons))
     # Write data to text file
     f = open(r'C:\Users\aaron\Classes_11th_Semester\CECS 622\CECS-622-Simulation-and-Modeling\Final Project\data_results.txt', "w")
     for person in all_persons:
         f.write(str(person))
+        if last_time_boarded_elevator < person.get_time_boarded_elevator():
+            last_time_boarded_elevator = person.get_time_boarded_elevator()
+
+    # TODO: fix the bug where the statement of number of people that can come to the elevator is
+    # sometimes bigger than the number of persons in the text file. A smaller number in the text file is okay,
+    # but sometimes that number is larger.
+    f.write("Total Persons walked/took lift: " + str(len(all_persons)) + "\n")
+    f.write("Time last person boarded elevator: " + str(last_time_boarded_elevator) + "\n")
+    f.write("There were " + str(number_of_workers_in_line_at_8_30) +" people in line at 8:30\n")
+    f.write("There were " + str(number_of_workers_in_line_at_8_45) +" people in line at 8:45\n")
+    f.write("There were " + str(number_of_workers_in_line_at_9_00) +" people in line at 9:00\n")
+    f.write("A total of " + str(number_of_people_walked_to_2nd_floor + number_of_people_walked_to_3rd_floor + number_of_people_walked_to_4th_floor) + " people walked.\n")
+    f.write("People that walked to the second floor: " + str(number_of_people_walked_to_2nd_floor) + "\n")
+    f.write("People that walked to the third floor: " + str(number_of_people_walked_to_3rd_floor) + "\n")
+    f.write("People that walked to the fourth floor: " + str(number_of_people_walked_to_4th_floor) + "\n")
     f.close()
 
 if __name__ == "__main__":
