@@ -20,4 +20,4 @@ Some of the things I've done:
 
 <img src="https://user-images.githubusercontent.com/19690086/73704298-8e1aaf00-46c0-11ea-8168-0bc82b33a6bf.png"  alt="Inventory_modeling for a fictional store with PyQt" width="50%" height="50%">
 
-## And much more! Check out the folders above to see the code of each project!
+## And much more! Check out the folders above to see the code and corresponding reports of each project!
